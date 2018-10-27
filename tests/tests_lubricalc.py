@@ -23,13 +23,23 @@
 """This module provides tests for cli.py."""
 
 from nose import run
+from lubricalc.lubricalc import *
 
 
 class TestLubricalc:
     """Class to test Lubricalc."""
 
-    def test_method(self):
-        pass
+    def test_reynolds(self):
+        assert reynolds(15, 0.01, 0.00015) == 1000
+
+    def test_viscosity_index_astm_d2270_156(self):
+        assert viscosity_index_astm_d2270(v40=22.83, v100=5.05) == 156
+
+    def test_viscosity_index_astm_d2270_92(self):
+        assert viscosity_index_astm_d2270(v40=73.3, v100=8.86) == 92
+
+    def test_viscosity_index_astm_d2270_146(self):
+        assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
 
 
 if __name__ == '__main__':
