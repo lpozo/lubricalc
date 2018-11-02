@@ -42,5 +42,23 @@ class TestLubricalc:
         assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
 
 
+class TestBearing:
+    """Class to test Bearing class."""
+
+    def test_grease_amount(self):
+        """Test grease_amount()."""
+        bearing = Bearing(25, 18, 60, 12, 1750)
+        assert bearing.grease_amount() == 7.5
+
+    def test_lubrication_frequency(self):
+        """Test lubrication_frequency()."""
+        bearing = Bearing(25, 18, 60, 12, 1750)
+        assert bearing.lubrication_frequency(contamination=1,
+                                             moisture=2,
+                                             vibration=0,
+                                             position=0,
+                                             design=2) == 508
+
+
 if __name__ == '__main__':
     run()

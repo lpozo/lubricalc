@@ -79,7 +79,7 @@ class ViscosityIndexTab(BaseTab):
     """Class to implement viscosity index tab."""
 
     def __init__(self):
-        super(ViscosityIndexTab, self).__init__()
+        super().__init__()
         self.text = 'Viscosity Index - ASTM-D2270'
         self.setup_ui()
         self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
@@ -113,3 +113,31 @@ class ViscosityIndexTab(BaseTab):
 
         vi = viscosity_index_astm_d2270(v40, v100)
         self.vi_label.setText(str(vi))
+
+
+class ViscosityAt40(BaseTab):
+    """Class to implement viscosity index tab."""
+
+    def __init__(self):
+        super().__init__()
+        self.text = 'Viscosity at 40°C'
+        self.setup_ui()
+        self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
+
+    def setup_ui(self):
+        """Setup tab UI."""
+        layout = QtWidgets.QFormLayout()
+        self.v100_line_edit = QtWidgets.QLineEdit()
+        self.vi_line_edit = QtWidgets.QLineEdit()
+        self.v40_label = QtWidgets.QLabel('Viscosity at 40°C (cSt)')
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.v40_label.setFont(font)
+        self.calculate_button = QtWidgets.QPushButton('Calculate')
+        layout.addRow('Kinematic Viscosity at 100°C (cSt):', self.v100_line_edit)
+        layout.addRow('Viscosity Index:', self.vi_line_edit)
+        layout.addRow(self.calculate_button, self.v40_label)
+        self.setLayout(layout)
+
+    def on_calculate_btn_clicked(self):
+        print('Viscosity at 40°C')

@@ -106,3 +106,133 @@ def viscosity_index_astm_d2270(v40, v100):
     # Viscosity Index of 100 and Greater
     # VI = ((10 ** N - 1) / 0.00715) + 100
     return round(((10 ** N - 1) / 0.00715) + 100)
+
+
+class Bearing:
+    """Class to define calculations related with bearings."""
+
+    def __init__(self, D, d, B, temperature, rpm):
+        """Class initializer."""
+        self.outer_diameter = D
+        self.inner_diameter = d
+        self.width = B
+        self.temperature = temperature
+        self.rpm = rpm
+
+    def grease_amount(self):
+        """Return the amount of grease needed for re-lubrication.
+
+        Gg = 0.005 * D * B
+        where:
+        Gg: Amount of grease needed for re-lubrication (g)
+        D: Outer diameter of bearing (mm)
+        B: Total width of bearing (mm)
+        """
+        Gg = 0.005 * self.outer_diameter * self.width
+
+        return round(Gg, 2)
+
+    def lubrication_frequency(self, contamination, moisture,
+                              vibration, position, design):
+        """Return the re-lubrication frequency.
+
+        T = K * ((14_000_000 / (n * sqrt(d))) - 4 * d)
+        where:
+        T: Frequency of re-lubrication (hours)
+        K: Corrections factors
+            K = Ft * Fc * Fh * Fv * Fp * Fd
+            where:
+            Ft: Temperature of bearing housing factor
+                < 65°C, then Ft = 1.0
+                65 to 80°C, then Ft = 0.5
+                80 to 93°C, then Ft = 0.2
+                > 93°C, then Ft = 0.1
+            Fc: Solid contamination factor
+                Light, no abrasive dust, then Fc = 1.0
+                Severe, no abrasive dust, then Fc = 0.7
+                Light, abrasive dust, then Fc = 0.4
+                Severe, abrasive dust, then Fc = 0.2
+            Fh: Moisture factor
+                < 80 % ,then Fh = 1.0
+                80 to 90 %, then Fh = 0.7
+                Occasional condensation, then Fh = 0.4
+                Water, then Fh = 0.2
+            Fv: Vibrations factor
+                Top speed < 0.2 ips (inch per second) then Fv = 1.0
+                0.2 to 0.4 ips, then Fv = 0.6
+                > 0.4 ips, then Fv = 0.3
+            Fp: Shaft position factor
+                Horizontal, then Fp = 1.0
+                45 degrees, then Fp = 0.5
+                Vertical, then Fp = 0.3
+            Fd: Bearing design factor
+                Ball bearing, then Fd = 10
+                Cylinder/Needle roller bearing, then Fd = 5
+                Conical roller bearing, then Fd = 1
+        n: Rotation speed (rpm)
+        d: Inner diameter of the bearing (mm)
+        """
+        Ft = self._claculate_Ft()
+
+        Fc = self._calculate_Fc(contamination)
+
+        Fh = self._calculate_Fh(moisture)
+
+        Fv = self._calculate_Fv(vibration)
+
+        Fp = self._calculate_Fp(position)
+
+        Fd = self._calculate_Fd(design)
+
+        K = Ft * Fc * Fh * Fv * Fp * Fd
+
+        T = K * ((14_000_000 / (self.rpm * math.sqrt(self.inner_diameter))) -
+                 4 * self.inner_diameter)
+
+        return round(T)
+
+    def speed_factor(self):
+        """Return the speed factor of a bearing.
+
+        n * dm
+        where:
+        n: rotation speed (rpm)
+        dm: mean diameter (mm)
+        dm = (D + d) / 2
+        """
+        return self.rpm * (self.outer_diameter + self.inner_diameter) / 2
+
+    def _claculate_Ft(self):
+        up = float('inf')
+        ft_map = {(0, 65.0): 1.0,
+                  (65.0, 80.0): 0.5,
+                  (80.0, 93.0): 0.2,
+                  (93.0, up): 0.1}
+
+        Ft = None
+        for k, v in ft_map.items():
+            if k[0] <= self.temperature < k[1]:
+                Ft = v
+                break
+
+        return Ft
+
+    def _calculate_Fc(self, item):
+        fc_map = (1.0, 0.7, 0.4, 0.2)
+        return fc_map[item]
+
+    def _calculate_Fh(self, item):
+        fh_map = (1.0, 0.7, 0.4, 0.1)
+        return fh_map[item]
+
+    def _calculate_Fv(self, item):
+        fv_map = (1.0, 0.6, 0.3)
+        return fv_map[item]
+
+    def _calculate_Fp(self, item):
+        fp_map = (1.0, 0.5, 0.3)
+        return fp_map[item]
+
+    def _calculate_Fd(self, item):
+        fd_map = (10.0, 5.0, 1.0)
+        return fd_map[item]
