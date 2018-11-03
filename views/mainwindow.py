@@ -89,7 +89,7 @@ class ViscosityIndexTab(BaseTab):
         layout = QtWidgets.QFormLayout()
         self.v40_line_edit = QtWidgets.QLineEdit()
         self.v100_line_edit = QtWidgets.QLineEdit()
-        self.vi_label = QtWidgets.QLabel('Viscosity Index Value')
+        self.vi_label = QtWidgets.QLabel('Viscosity Index')
         font = QtGui.QFont()
         font.setBold(True)
         self.vi_label.setFont(font)
@@ -112,11 +112,11 @@ class ViscosityIndexTab(BaseTab):
             return
 
         vi = viscosity_index_astm_d2270(v40, v100)
-        self.vi_label.setText(str(vi))
+        self.vi_label.setText('Viscosity Index = ' + str(vi))
 
 
 class ViscosityAt40(BaseTab):
-    """Class to implement viscosity index tab."""
+    """Class to implement viscosity at 40°C tab."""
 
     def __init__(self):
         super().__init__()
@@ -141,3 +141,127 @@ class ViscosityAt40(BaseTab):
 
     def on_calculate_btn_clicked(self):
         print('Viscosity at 40°C')
+
+
+class BearingsLubrication(BaseTab):
+    """Class to implement Bearing Lubrication tab."""
+
+    def __init__(self):
+        super().__init__()
+        self.text = 'Bearing Lubrication'
+        self.setup_ui()
+        self.grease_amount_button.clicked.connect(
+            self.on_grease_amount_btn_clicked)
+        self.frequency_button.clicked.connect(self.on_frequency_btn_clicked)
+
+    def setup_ui(self):
+        """Setup tab UI."""
+        font = QtGui.QFont()
+        font.setBold(True)
+        general_layout = QtWidgets.QVBoxLayout()
+        general_layout.addWidget(self._create_params_group())
+        general_layout.addWidget(self._create_grease_amount_group(font))
+        general_layout.addWidget(self._create_frequency_group(font))
+        self.setLayout(general_layout)
+
+    def _create_params_group(self):
+        params_group = QtWidgets.QGroupBox('Bearing Parameters')
+        params_layout = QtWidgets.QFormLayout()
+        params_group.setLayout(params_layout)
+        self.D_line_edit = QtWidgets.QLineEdit()
+        self.d_line_edit = QtWidgets.QLineEdit()
+        self.B_line_edit = QtWidgets.QLineEdit()
+        self.temperature_line_edit = QtWidgets.QLineEdit()
+        self.rpm_line_edit = QtWidgets.QLineEdit()
+        params_layout.addRow('Outer Diameter (mm):', self.D_line_edit)
+        params_layout.addRow('Inner Diameter (mm):', self.d_line_edit)
+        params_layout.addRow('Total Width (mm):', self.B_line_edit)
+        params_layout.addRow('Rotation Speed (rpm):', self.rpm_line_edit)
+        params_layout.addRow('Operation Temperature (°C):',
+                             self.temperature_line_edit)
+        return params_group
+
+    def _create_grease_amount_group(self, font):
+        grease_amount_group = QtWidgets.QGroupBox(
+            'Amount of Grease for Re-lubrication')
+        grease_amount_layout = QtWidgets.QFormLayout()
+        self.grease_amount_button = QtWidgets.QPushButton('Calculate')
+        self.grease_amount_label = QtWidgets.QLabel(
+            'Amount of Grease for Re-lubrication')
+        self.grease_amount_label.setFont(font)
+        grease_amount_layout.addRow(self.grease_amount_button,
+                                    self.grease_amount_label)
+        grease_amount_group.setLayout(grease_amount_layout)
+        return grease_amount_group
+
+    def _create_frequency_group(self, font):
+        frequency_group = QtWidgets.QGroupBox('Re-lubrication Frequency')
+        frequency_layout = QtWidgets.QFormLayout()
+        frequency_group.setLayout(frequency_layout)
+        self.frequency_button = QtWidgets.QPushButton('Calculate')
+        self.frequency_label = QtWidgets.QLabel('Re-lubrication Frequency')
+        self.frequency_label.setFont(font)
+        self.Fc = QtWidgets.QComboBox()
+        frequency_layout.addRow('Contamination Factor:', self.Fc)
+        self.Fc.addItems(('Light, no abrasive dust',
+                          'Severe, no abrasive dust',
+                          'Light, abrasive dust',
+                          'Severe, abrasive dust'))
+
+        self.Fh = QtWidgets.QComboBox()
+        frequency_layout.addRow('Humidity Factor:', self.Fh)
+        self.Fh.addItems(('Relative Humidity < 80 %',
+                          'Relative Humidity from 80 to 90 %',
+                          'Occasional condensation',
+                          'Water Presence'))
+
+        self.Fv = QtWidgets.QComboBox()
+        frequency_layout.addRow('Vibration Factor:', self.Fv)
+        self.Fv.addItems(('Top speed < 0.2 ips',
+                          'Top speed from 0.2 to 0.4 ips',
+                          'Top speed > 0.4 ips'))
+
+        self.Fp = QtWidgets.QComboBox()
+        frequency_layout.addRow('Position Factor:', self.Fp)
+        self.Fp.addItems(('Horizontal',
+                          '45 Degrees',
+                          'Vertical'))
+
+        self.Fd = QtWidgets.QComboBox()
+        frequency_layout.addRow('Design Factor:', self.Fd)
+        self.Fd.addItems(('Ball bearing',
+                          'Cylinder/Needle roller bearing',
+                          'Conical roller bearing'))
+
+        frequency_layout.addRow(self.frequency_button, self.frequency_label)
+
+        return frequency_group
+
+    def on_grease_amount_btn_clicked(self):
+        bearing = Bearing(D=float(self.D_line_edit.text()),
+                          d=float(self.d_line_edit.text()),
+                          B=float(self.B_line_edit.text()),
+                          temperature=float(self.temperature_line_edit.text()),
+                          rpm=float(self.rpm_line_edit.text()))
+        self.grease_amount_label.setText('Amount of Grease for Re-lubrication'
+                                         + ' = ' +
+                                         str(bearing.grease_amount())
+                                         + ' ' +
+                                         'g')
+
+    def on_frequency_btn_clicked(self):
+        bearing = Bearing(D=float(self.D_line_edit.text()),
+                          d=float(self.d_line_edit.text()),
+                          B=float(self.B_line_edit.text()),
+                          temperature=float(self.temperature_line_edit.text()),
+                          rpm=float(self.rpm_line_edit.text()))
+        self.frequency_label.setText('Re-lubrication Frequency'
+                                     + ' = ' +
+                                     str(bearing.lubrication_frequency(
+                                         contamination=self.Fc.currentIndex(),
+                                         moisture=self.Fh.currentIndex(),
+                                         vibration=self.Fv.currentIndex(),
+                                         position=self.Fp.currentIndex(),
+                                         design=self.Fd.currentIndex()))
+                                     + ' ' +
+                                     'hours')

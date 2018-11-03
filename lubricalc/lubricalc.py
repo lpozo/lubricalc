@@ -194,8 +194,9 @@ class Bearing:
     def speed_factor(self):
         """Return the speed factor of a bearing.
 
-        n * dm
+        A = n * dm
         where:
+        A: Speed factor (mm/min)
         n: rotation speed (rpm)
         dm: mean diameter (mm)
         dm = (D + d) / 2

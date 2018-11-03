@@ -28,7 +28,6 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 from views.mainwindow import LubricalcMWin
 from lubricalc.config import APP_NAME
 from lubricalc.config import LONG_DESC
-from lubricalc.lubricalc import *
 
 
 class MainController:
