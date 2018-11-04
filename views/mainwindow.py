@@ -80,7 +80,7 @@ class ViscosityIndexTab(BaseTab):
 
     def __init__(self):
         super().__init__()
-        self.text = 'Viscosity Index - ASTM-D2270'
+        self.text = 'Viscosity Index'
         self.setup_ui()
         self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
 
@@ -115,32 +115,82 @@ class ViscosityIndexTab(BaseTab):
         self.vi_label.setText('Viscosity Index = ' + str(vi))
 
 
-class ViscosityAt40(BaseTab):
-    """Class to implement viscosity at 40°C tab."""
+class SulfatedAshTab(BaseTab):
+    """Class to implement Sulfated ash tab."""
 
     def __init__(self):
         super().__init__()
-        self.text = 'Viscosity at 40°C'
+        self.text = 'Total Sulfated Ash'
         self.setup_ui()
-        self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
+        self.additive_button.clicked.connect(self.on_additive_btn_clicked)
+        self.total_ash_button.clicked.connect(self.on_total_ash_btn_clicked)
 
     def setup_ui(self):
         """Setup tab UI."""
-        layout = QtWidgets.QFormLayout()
-        self.v100_line_edit = QtWidgets.QLineEdit()
-        self.vi_line_edit = QtWidgets.QLineEdit()
-        self.v40_label = QtWidgets.QLabel('Viscosity at 40°C (cSt)')
         font = QtGui.QFont()
         font.setBold(True)
-        self.v40_label.setFont(font)
-        self.calculate_button = QtWidgets.QPushButton('Calculate')
-        layout.addRow('Kinematic Viscosity at 100°C (cSt):', self.v100_line_edit)
-        layout.addRow('Viscosity Index:', self.vi_line_edit)
-        layout.addRow(self.calculate_button, self.v40_label)
-        self.setLayout(layout)
+        general_layout = QtWidgets.QVBoxLayout()
+        general_layout.addWidget(self._create_additive_group(font))
+        general_layout.addWidget(self._create_sulfated_ash_group(font))
+        self.setLayout(general_layout)
 
-    def on_calculate_btn_clicked(self):
-        print('Viscosity at 40°C')
+    def _create_additive_group(self, font):
+        additive_group = QtWidgets.QGroupBox('Additive (% mass)')
+        additive_layout = QtWidgets.QFormLayout()
+        additive_group.setLayout(additive_layout)
+        self.additive_percent = QtWidgets.QLineEdit()
+        additive_layout.addRow('Total Additive (% mass):',
+                               self.additive_percent)
+        self.additive_density = QtWidgets.QLineEdit()
+        additive_layout.addRow('Additive Density (kg/L):',
+                               self.additive_density)
+        self.oil_density = QtWidgets.QLineEdit()
+        additive_layout.addRow('Density of Finished Oil (kg/L):',
+                               self.oil_density)
+        self.additive_button = QtWidgets.QPushButton('Calculate')
+        self.additive_label = QtWidgets.QLabel('Additive (% mass)')
+        self.additive_label.setFont(font)
+        additive_layout.addRow(self.additive_button, self.additive_label)
+        return additive_group
+
+    def _create_sulfated_ash_group(self, font):
+        sulfated_ash_group = QtWidgets.QGroupBox('Total Sulfated Ash')
+        sulfated_ash_layout = QtWidgets.QFormLayout()
+        sulfated_ash_group.setLayout(sulfated_ash_layout)
+        self.additive_percent = QtWidgets.QLineEdit()
+        sulfated_ash_layout.addRow('Total Additive (% mass):',
+                               self.additive_percent)
+
+        for metal in SulfatedAsh().metals:
+            line_edit = QtWidgets.QLineEdit()
+            line_edit.setText('0')
+            self.__dict__[metal] = line_edit
+            sulfated_ash_layout.addRow(metal.capitalize() + ' (% mass):',
+                                       line_edit)
+        self.total_ash_button = QtWidgets.QPushButton('Calculate')
+        self.total_ash_label = QtWidgets.QLabel('Total Sulfated Ash (% mass)')
+        self.total_ash_label.setFont(font)
+        sulfated_ash_layout.addRow(self.total_ash_button, self.total_ash_label)
+
+        return sulfated_ash_group
+
+    def on_additive_btn_clicked(self):
+        obj = SulfatedAsh(additive_percent=float(self.additive_percent.text()))
+        additive = obj.additive_percent_mass(
+            additive_density=float(self.additive_density.text()),
+            final_oil_density=float(self.oil_density.text()))
+        self.additive_label.setText('Additive (% mass)' + ' = ' +
+                                    str(additive) + ' ' + '%')
+
+    def on_total_ash_btn_clicked(self):
+        obj = SulfatedAsh(additive_percent=float(self.additive_percent.text()))
+        metal_contents = {}
+        for metal in obj.metals:
+            metal_contents[metal] = float(self.__dict__[metal].text())
+
+        total_ash = obj.total_ash(**metal_contents)
+        self.total_ash_label.setText('Total Sulfated Ash (% mass)' + ' = ' +
+                                     str(total_ash) + ' %')
 
 
 class BearingsLubrication(BaseTab):

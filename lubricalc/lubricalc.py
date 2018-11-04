@@ -135,8 +135,9 @@ class Bearing:
     def lubrication_frequency(self, contamination, moisture,
                               vibration, position, design):
         """Return the re-lubrication frequency.
-
-        T = K * ((14_000_000 / (n * sqrt(d))) - 4 * d)
+                    14000000
+        T = K * [(--------------) - 4 * d]
+                   n * sqrt(d)
         where:
         T: Frequency of re-lubrication (hours)
         K: Corrections factors
@@ -199,7 +200,9 @@ class Bearing:
         A: Speed factor (mm/min)
         n: rotation speed (rpm)
         dm: mean diameter (mm)
-        dm = (D + d) / 2
+             (D + d)
+        dm = -------
+                2
         """
         return self.rpm * (self.outer_diameter + self.inner_diameter) / 2
 
@@ -237,3 +240,50 @@ class Bearing:
     def _calculate_Fd(self, item):
         fd_map = (10.0, 5.0, 1.0)
         return fd_map[item]
+
+
+class SulfatedAsh:
+    """Class to calculate sulfated ash of a motor oil."""
+    def __init__(self, additive_percent=0):
+        self.additive_percent = additive_percent
+        self.contributions = {'zinc': 1.50,
+                              'barium': 1.70,
+                              'sodium': 3.09,
+                              'calcium': 3.40,
+                              'magnesium': 4.95,
+                              'lead': 1.464,
+                              'boron': 3.22,
+                              'potassium': 2.23,
+                              'manganese': 1.291,
+                              'molybdenum': 1.5,
+                              'copper': 1.252}
+
+    @property
+    def metals(self):
+        return self.contributions.keys()
+
+    def additive_percent_mass(self, additive_density, final_oil_density):
+        """Return the % by mass of Additive in a motor oil.
+
+                             Additive Density (kg/L) * Additive (% volume)
+        Additive (% mass) = ----------------------------------------------
+                                Density of Finished Oil (kg/L)
+        """
+        return round((additive_density * self.additive_percent) / final_oil_density, 2)
+
+    def _sulfated_ash(self, metal, metal_content):
+        """Return the % of sulfated ash (SA) of a motor oil.
+
+              Metal Content (% mass) * Contribution to Ash * Additive Package (% by volume)
+        SA = -------------------------------------------------------------------------------
+                                                100
+        """
+        SA = round(metal_content * self.contributions[metal.lower()] *
+                   self.additive_percent / 100, 3)
+
+        return SA
+
+    def total_ash(self, **metal_contents):
+        total_ash = sum(self._sulfated_ash(metal, content) for
+                        metal, content in metal_contents.items())
+        return round(total_ash, 2)
