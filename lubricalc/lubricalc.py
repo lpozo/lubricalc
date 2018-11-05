@@ -22,6 +22,8 @@
 
 import math
 
+from lubricalc.exception import ViscosityConceptError
+
 
 def reynolds(V, Lc, v):
     """Return the Reynolds number (Re).
@@ -57,6 +59,19 @@ def viscosity_index_astm_d2270(v40, v100):
     v100: kinematic viscosity at 100°C of the oil whose viscosity
           index is to be calculated, mm^2/s (cSt)
     """
+    if v40 == 'inf' or v100 == 'inf':
+        raise ValueError('Viscosity values must be valid numbers')
+
+    try:
+        v40 = float(v40)
+        v100 = float(v100)
+    except ValueError:
+        raise ValueError('Viscosity values must be valid numbers')
+
+    if v100 > v40:
+        raise ViscosityConceptError('Viscosity at 40°C must be'
+                             ' greater than Viscosity at 100°C')
+
     up = float('inf')
     coefficients = {
          (2, 3.8): (1.14673, 1.7576, -0.109, 0.84155, 1.5521, -0.077),
