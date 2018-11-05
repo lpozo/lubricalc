@@ -29,18 +29,18 @@ except ImportError:
 
 
 if __name__ == '__main__':
-    setup(name='cli',
+    setup(name='Lubricalc',
           version='0.1',
-          description='Cli',
-          long_description='Cli...',
+          description='Lubricalc is a desktop application to perform calculations on machinery lubrication.',
+          long_description='Lubricalc is a desktop application to perform calculations on machinery lubrication.',
           author='Leodanis Pozo Ramos',
           author_email='lpozor78@gmail.com',
           maintainer='Leodanis Pozo Ramos',
           maintainer_email='lpozor78@gmail.com',
-          url='https://github.com/lpozo/cli',
+          url='https://github.com/lpozo/lubricalc',
           license='GNU GENERAL PUBLIC LICENSE, Version 2, June 1991',
-          platforms=['linux'],
-          scripts=['cli'],
-          py_modules=['cli'],
+          platforms=['linux', 'win32'],
+          scripts=['lubricalc'],
+          py_modules=[''],
           packages=[],
          )
