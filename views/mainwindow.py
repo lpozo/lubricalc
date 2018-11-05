@@ -109,18 +109,23 @@ class ViscosityIndexTab(BaseTab):
 
     def on_calculate_btn_clicked(self):
         try:
-            v40 = float(self.v40_line_edit.text())
-            v100 = float(self.v100_line_edit.text())
+            vi = viscosity_index_astm_d2270(v40=self.v40_line_edit.text(),
+                                            v100=self.v100_line_edit.text())
+            self.vi_label.setText('Viscosity Index = ' + str(vi))
         except ValueError:
-            print('Enter valid data for Viscosity at 40°C and at 100°C')
-            return
-
-        if v100 > v40:
-            print('Viscosity at 40°C must be greater than Viscosity at 100°C')
-            return
-
-        vi = viscosity_index_astm_d2270(v40, v100)
-        self.vi_label.setText('Viscosity Index = ' + str(vi))
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Enter valid data for Viscosity'
+                                  ' at 40°C and at 100°C',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ViscosityConceptError:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Viscosity at 40°C must be'
+                                  ' greater than Viscosity at 100°C',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
 
 class SulfatedAshTab(BaseTab):
