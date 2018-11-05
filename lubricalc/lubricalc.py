@@ -242,9 +242,9 @@ class Bearing:
         return fd_map[item]
 
 
-class SulfatedAsh:
-    """Class to calculate sulfated ash of a motor oil."""
-    def __init__(self, additive_percent=0):
+class OilBlend:
+    """Class to calculate some parameters of a motor oil blend."""
+    def __init__(self, additive_percent=0.0):
         self.additive_percent = additive_percent
         self.contributions = {'zinc': 1.50,
                               'barium': 1.70,
@@ -269,7 +269,8 @@ class SulfatedAsh:
         Additive (% mass) = ----------------------------------------------
                                 Density of Finished Oil (kg/L)
         """
-        return round((additive_density * self.additive_percent) / final_oil_density, 2)
+        return round((additive_density * self.additive_percent) /
+                     final_oil_density, 2)
 
     def _sulfated_ash(self, metal, metal_content):
         """Return the % of sulfated ash (SA) of a motor oil.

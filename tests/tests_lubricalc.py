@@ -41,19 +41,20 @@ class TestLubricalc:
     def test_viscosity_index_astm_d2270_146(self):
         assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
 
-class TestSulfatedAsh:
-    """Class to test SulfatedAsh."""
+
+class TestOilBlend:
+    """Class to test OilBlend."""
 
     def test_additive_percent_mass(self):
-        obj = SulfatedAsh(8.0)
-        assert obj.additive_percent_mass(additive_density=0.959,
-                                         final_oil_density=0.881) == 8.71
+        blend = OilBlend(8.0)
+        assert blend.additive_percent_mass(additive_density=0.959,
+                                           final_oil_density=0.881) == 8.71
 
     def test_total_ash(self):
-        obj = SulfatedAsh(additive_percent=8.5)
-        assert obj.total_ash(Calcium=0.47,
-                             Magnesium=1.15,
-                             zinc=1.66) == 0.83
+        blend = OilBlend(additive_percent=8.5)
+        assert blend.total_ash(Calcium=0.47,
+                               Magnesium=1.15,
+                               zinc=1.66) == 0.83
 
 
 class TestBearing:
@@ -72,7 +73,6 @@ class TestBearing:
                                              vibration=0,
                                              position=0,
                                              design=2) == 508
-
 
 
 if __name__ == '__main__':

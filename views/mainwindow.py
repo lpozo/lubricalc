@@ -24,7 +24,7 @@ class LubricalcMWin(QMainWindow):
         self.setWindowTitle(APP_NAME + ' ' + VERSION)
         # self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(
         #     'images/multimedia-audio-player.ico')))
-        self.central_widget = TabsGroup(self)
+        self.central_widget = TabsCollection(self)
         self.central_widget.setMinimumSize(QtCore.QSize(300, 300))
         self.setCentralWidget(self.central_widget)
         self.global_layout = QtWidgets.QVBoxLayout(self.central_widget)
@@ -52,20 +52,18 @@ class LubricalcMWin(QMainWindow):
         self.setStatusBar(self.status_bar)
 
 
-class TabsGroup(QtWidgets.QTabWidget):
+class TabsCollection(QtWidgets.QTabWidget):
     """Class to define tabs."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        # self.tabs = []
-        self._add_tabs()
+        self._create_tabs()
 
-    def _add_tabs(self):
+    def _create_tabs(self):
         for i, klass in enumerate(BaseTab.__subclasses__()):
             tab = klass()
             self.addTab(tab, '')
             self.setTabText(i, tab.text)
-            # self.tabs.append(tab)
 
 
 class BaseTab(QtWidgets.QWidget):
@@ -86,18 +84,28 @@ class ViscosityIndexTab(BaseTab):
 
     def setup_ui(self):
         """Setup tab UI."""
-        layout = QtWidgets.QFormLayout()
+        font = QtGui.QFont()
+        font.setBold(True)
+        general_layout = QtWidgets.QVBoxLayout()
+        general_layout.addWidget(self._create_viscosity_index_group(font))
+        self.setLayout(general_layout)
+
+    def _create_viscosity_index_group(self, font):
+        viscosity_index_group = QtWidgets.QGroupBox('Viscosity Index')
+        viscosity_index_layout = QtWidgets.QFormLayout()
         self.v40_line_edit = QtWidgets.QLineEdit()
         self.v100_line_edit = QtWidgets.QLineEdit()
         self.vi_label = QtWidgets.QLabel('Viscosity Index')
-        font = QtGui.QFont()
-        font.setBold(True)
         self.vi_label.setFont(font)
         self.calculate_button = QtWidgets.QPushButton('Calculate')
-        layout.addRow('Kinematic Viscosity at 40°C (cSt):', self.v40_line_edit)
-        layout.addRow('Kinematic Viscosity at 100°C (cSt):', self.v100_line_edit)
-        layout.addRow(self.calculate_button, self.vi_label)
-        self.setLayout(layout)
+        viscosity_index_layout.addRow('Kinematic Viscosity at 40°C (cSt):',
+                                      self.v40_line_edit)
+        viscosity_index_layout.addRow('Kinematic Viscosity at 100°C (cSt):',
+                                      self.v100_line_edit)
+        viscosity_index_layout.addRow(self.calculate_button, self.vi_label)
+        viscosity_index_group.setLayout(viscosity_index_layout)
+
+        return viscosity_index_group
 
     def on_calculate_btn_clicked(self):
         try:
@@ -161,7 +169,7 @@ class SulfatedAshTab(BaseTab):
         sulfated_ash_layout.addRow('Total Additive (% mass):',
                                self.additive_percent)
 
-        for metal in SulfatedAsh().metals:
+        for metal in OilBlend().metals:
             line_edit = QtWidgets.QLineEdit()
             line_edit.setText('0')
             self.__dict__[metal] = line_edit
@@ -175,25 +183,25 @@ class SulfatedAshTab(BaseTab):
         return sulfated_ash_group
 
     def on_additive_btn_clicked(self):
-        obj = SulfatedAsh(additive_percent=float(self.additive_percent.text()))
-        additive = obj.additive_percent_mass(
+        blend = OilBlend(additive_percent=float(self.additive_percent.text()))
+        additive = blend.additive_percent_mass(
             additive_density=float(self.additive_density.text()),
             final_oil_density=float(self.oil_density.text()))
         self.additive_label.setText('Additive (% mass)' + ' = ' +
                                     str(additive) + ' ' + '%')
 
     def on_total_ash_btn_clicked(self):
-        obj = SulfatedAsh(additive_percent=float(self.additive_percent.text()))
+        blend = OilBlend(additive_percent=float(self.additive_percent.text()))
         metal_contents = {}
-        for metal in obj.metals:
+        for metal in blend.metals:
             metal_contents[metal] = float(self.__dict__[metal].text())
 
-        total_ash = obj.total_ash(**metal_contents)
+        total_ash = blend.total_ash(**metal_contents)
         self.total_ash_label.setText('Total Sulfated Ash (% mass)' + ' = ' +
                                      str(total_ash) + ' %')
 
 
-class BearingsLubrication(BaseTab):
+class BearingTab(BaseTab):
     """Class to implement Bearing Lubrication tab."""
 
     def __init__(self):
