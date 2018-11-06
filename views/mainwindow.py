@@ -128,6 +128,54 @@ class ViscosityIndexTab(BaseTab):
                                   self).show()
 
 
+class BaseOilMixtureTab(BaseTab):
+    """Class to implement Base Oil Mixture tab."""
+
+    def __init__(self):
+        super().__init__()
+        self.text = 'Base Oil Mixture'
+        self.setup_ui()
+        self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
+
+    def setup_ui(self):
+        """Setup tab UI."""
+        font = QtGui.QFont()
+        font.setBold(True)
+        general_layout = QtWidgets.QVBoxLayout()
+        general_layout.addWidget(self._create_base_oil_mixture_group(font))
+        self.setLayout(general_layout)
+
+    def _create_base_oil_mixture_group(self, font):
+        base_oil_mixture_group = QtWidgets.QGroupBox('Mixture Kinematic Viscosity')
+        base_oil_mixture_layout = QtWidgets.QFormLayout()
+        self.KV1_line_edit = QtWidgets.QLineEdit()
+        self.KV2_line_edit = QtWidgets.QLineEdit()
+        self.oil1_percent_line_edit = QtWidgets.QLineEdit()
+        self.temperature_combo = QtWidgets.QComboBox()
+        self.temperature_combo.addItems(('100', '40', '-5'))
+        self.mix_KV_label = QtWidgets.QLabel('Mixture Kinematic Viscosity')
+        self.mix_KV_label.setFont(font)
+        self.calculate_button = QtWidgets.QPushButton('Calculate')
+        base_oil_mixture_layout.addRow('1st Base Oil Kinematic Viscosity (cSt):',
+                                       self.KV1_line_edit)
+        base_oil_mixture_layout.addRow('2nd Base Oil Kinematic Viscosity (cSt):',
+                                       self.KV2_line_edit)
+        base_oil_mixture_layout.addRow('1st Base Oil Proportion in Mixture (%):',
+                                       self.oil1_percent_line_edit)
+        base_oil_mixture_layout.addRow('Temperature (°C):', self.temperature_combo)
+        base_oil_mixture_layout.addRow(self.calculate_button, self.mix_KV_label)
+        base_oil_mixture_group.setLayout(base_oil_mixture_layout)
+
+        return base_oil_mixture_group
+
+    def on_calculate_btn_clicked(self):
+        mix_KV = oil_mix(KV1=self.KV1_line_edit.text(),
+                         KV2=self.KV2_line_edit.text(),
+                         oil1_percent=self.oil1_percent_line_edit.text(),
+                         temperature=self.temperature_combo.currentText())
+        self.mix_KV_label.setText('Mixture Kinematic Viscosity' + ' = ' +
+                                  str(mix_KV) + ' ' + 'cSt')
+
 class SulfatedAshTab(BaseTab):
     """Class to implement Sulfated ash tab."""
 

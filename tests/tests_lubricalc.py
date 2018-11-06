@@ -41,6 +41,9 @@ class TestLubricalc:
     def test_viscosity_index_astm_d2270_146(self):
         assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
 
+    def test_oil_mix(self):
+        assert oil_mix(20, 16, 45, 100) == 17.67
+
 
 class TestOilBlend:
     """Class to test OilBlend."""
@@ -73,6 +76,11 @@ class TestBearing:
                                              vibration=0,
                                              position=0,
                                              design=2) == 508
+
+    def test_speed_factor(self):
+        """Test speed_factor()."""
+        bearing = Bearing(58, 45, 12, 60, 3000)
+        assert bearing.speed_factor() == 154500
 
 
 if __name__ == '__main__':

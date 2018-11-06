@@ -70,7 +70,7 @@ def viscosity_index_astm_d2270(v40, v100):
 
     if v100 > v40:
         raise ViscosityConceptError('Viscosity at 40°C must be'
-                             ' greater than Viscosity at 100°C')
+                                    ' greater than Viscosity at 100°C')
 
     up = float('inf')
     coefficients = {
@@ -303,3 +303,19 @@ class OilBlend:
         total_ash = sum(self._sulfated_ash(metal, content) for
                         metal, content in metal_contents.items())
         return round(total_ash, 2)
+
+
+def oil_mix(KV1, KV2, oil1_percent, temperature):
+    """Return the resulting viscosity of a mix of different bases."""
+    KV1 = float(KV1)
+    KV2 = float(KV2)
+    temp_map = {'100': 1.8,
+                '40': 4.1,
+                '-5': 1.9}
+    K = temp_map[temperature]
+    x1 = float(oil1_percent) / 100
+    mix_KV = (math.exp(math.log(KV2 + K) *
+                       math.exp(x1 * math.log(
+                           math.log(KV1 + K) /
+                           math.log(KV2 + K)))) - K)
+    return round(mix_KV, 2)
