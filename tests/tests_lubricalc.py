@@ -42,7 +42,12 @@ class TestLubricalc:
         assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
 
     def test_oil_mix(self):
-        assert oil_mix(20, 16, 45, 100) == 17.67
+        mix = OilMixture()
+        assert mix.oil_mix(20, 16, 45, '100') == 17.67
+
+    def test_mix_proportions(self):
+        mix = OilMixture()
+        assert mix.mix_proportions(460, 150, 680, '40') == (23.64, 76.36)
 
 
 class TestOilBlend:

@@ -50,6 +50,22 @@ def reynolds(V, Lc, v):
     return round(V * Lc / v, 1)
 
 
+def _validate_data(*data):
+    validated_data = []
+    for datum in data:
+        try:
+            validated_data.append(float(datum))
+        except ValueError:
+            raise ValueError('Input Data must be valid numbers')
+
+    for datum in validated_data:
+        if datum == float('inf'):
+            raise ValueError('Input Data must not be infinite')
+        if datum < 0:
+            raise ValueError('Input Data must be positive numbers')
+    return validated_data
+
+
 def viscosity_index_astm_d2270(v40, v100):
     """Calculate the VI by ASTM-D2270.
 
@@ -59,14 +75,7 @@ def viscosity_index_astm_d2270(v40, v100):
     v100: kinematic viscosity at 100°C of the oil whose viscosity
           index is to be calculated, mm^2/s (cSt)
     """
-    if v40 == 'inf' or v100 == 'inf':
-        raise ValueError('Viscosity values must be valid numbers')
-
-    try:
-        v40 = float(v40)
-        v100 = float(v100)
-    except ValueError:
-        raise ValueError('Viscosity values must be valid numbers')
+    v40, v100 = _validate_data(v40, v100)
 
     if v100 > v40:
         raise ViscosityConceptError('Viscosity at 40°C must be'
@@ -305,17 +314,36 @@ class OilBlend:
         return round(total_ash, 2)
 
 
-def oil_mix(KV1, KV2, oil1_percent, temperature):
-    """Return the resulting viscosity of a mix of different bases."""
-    KV1 = float(KV1)
-    KV2 = float(KV2)
-    temp_map = {'100': 1.8,
-                '40': 4.1,
-                '-5': 1.9}
-    K = temp_map[temperature]
-    x1 = float(oil1_percent) / 100
-    mix_KV = (math.exp(math.log(KV2 + K) *
-                       math.exp(x1 * math.log(
-                           math.log(KV1 + K) /
-                           math.log(KV2 + K)))) - K)
-    return round(mix_KV, 2)
+class OilMixture:
+
+    def __init__(self):
+        self.temp_map = {'100': 1.8,
+                         '40': 4.1,
+                         '-5': 1.9}
+
+    def oil_mix(self, KV1, KV2, oil1_percent, temperature):
+        """Return the resulting viscosity of a mix of different bases."""
+        KV1 = float(KV1)
+        KV2 = float(KV2)
+        K = self.temp_map[temperature]
+        x1 = float(oil1_percent) / 100
+        mix_KV = (math.exp(math.log(KV2 + K) *
+                           math.exp(x1 * math.log(
+                               math.log(KV1 + K) /
+                               math.log(KV2 + K)))) - K)
+
+        return round(mix_KV, 2)
+
+    def mix_proportions(self, KV, KV1, KV2, temperature):
+        """Return proportions to get a mixture of a given viscosity."""
+        KV = float(KV)
+        KV1 = float(KV1)
+        KV2 = float(KV2)
+        K = self.temp_map[temperature]
+        a = math.log(KV + K)
+        b = math.log(KV1 + K)
+        c = math.log(KV2 + K)
+        oil1_percent = 10000 * (math.log(a / c) / math.log(b / c)) / 100
+        oil2_percent = 100 - oil1_percent
+
+        return round(oil1_percent, 2), round(oil2_percent, 2)
