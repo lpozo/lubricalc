@@ -24,3 +24,11 @@
 
 class ViscosityConceptError(Exception):
     pass
+
+
+class InfiniteValueError(Exception):
+    pass
+
+
+class NegativeValuerError(Exception):
+    pass
