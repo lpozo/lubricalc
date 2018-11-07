@@ -22,7 +22,7 @@
 
 import math
 
-from lubricalc.exception import ViscosityConceptError
+from lubricalc.exception import *
 
 
 def reynolds(V, Lc, v):
@@ -50,9 +50,10 @@ def reynolds(V, Lc, v):
     return round(V * Lc / v, 1)
 
 
-def _validate_data(*data):
+def _data_is_valid(*data):
     validated_data = []
     for datum in data:
+        datum = str(datum).replace(',', '.')
         try:
             validated_data.append(float(datum))
         except ValueError:
@@ -60,9 +61,10 @@ def _validate_data(*data):
 
     for datum in validated_data:
         if datum == float('inf'):
-            raise ValueError('Input Data must not be infinite')
+            raise InfiniteValueError('Input Data must not be infinite')
         if datum < 0:
-            raise ValueError('Input Data must be positive numbers')
+            raise NegativeValuerError('Input Data must be positive numbers')
+
     return validated_data
 
 
@@ -75,7 +77,7 @@ def viscosity_index_astm_d2270(v40, v100):
     v100: kinematic viscosity at 100°C of the oil whose viscosity
           index is to be calculated, mm^2/s (cSt)
     """
-    v40, v100 = _validate_data(v40, v100)
+    v40, v100 = _data_is_valid(v40, v100)
 
     if v100 > v40:
         raise ViscosityConceptError('Viscosity at 40°C must be'
