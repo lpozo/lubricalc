@@ -104,7 +104,7 @@ class ViscosityIndexTab(BaseTab):
                                       self.v100_line_edit)
         viscosity_index_layout.addRow(self.calculate_button, self.vi_label)
         viscosity_index_group.setLayout(viscosity_index_layout)
-
+        self.vi_label.setToolTip(viscosity_index.__doc__)
         return viscosity_index_group
 
     def on_calculate_btn_clicked(self):

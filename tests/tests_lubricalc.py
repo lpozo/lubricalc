@@ -71,6 +71,31 @@ class TestViscosityIndex:
     def test_viscosity_index_145(self):
         assert viscosity_index(KV40=138.9, KV100=18.1) == 145
 
+    def test_viscosity_index_string_input(self):
+        assert viscosity_index(KV40='138.9', KV100='18.1') == 145
+
+    def test_viscosity_index_coma_input(self):
+        assert viscosity_index(KV40='138,9', KV100='18,1') == 145
+
+    @nose.tools.raises(InfiniteValueError)
+    def test_viscosity_index_inf_input(self):
+        viscosity_index(KV40=float('inf'), KV100='18,1')
+
+    @nose.tools.raises(ConceptError)
+    def test_viscosity_index_cero_kv40_input(self):
+        viscosity_index(KV40=0, KV100='18,1')
+
+    @nose.tools.raises(ConceptError)
+    def test_viscosity_index_cero_kv100_input(self):
+        viscosity_index(KV40=150, KV100=0)
+
+    @nose.tools.raises(ConceptError)
+    def test_viscosity_index_cero_kv40_lt_kv100_input(self):
+        viscosity_index(KV40=15, KV100=150)
+
+class TestOilMixture:
+    """Class to test OilMixture class"""
+
     def test_oil_mix(self):
         mix = OilMixture()
         assert mix.oil_mix(20, 16, 45, '100') == 17.67

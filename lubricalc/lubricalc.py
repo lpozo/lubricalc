@@ -52,6 +52,7 @@ def reynolds(V, Lc, v):
 
 
 def _validate_float(*data):
+    """Validate the input data."""
     validated_data = []
     for datum in data:
         datum = str(datum).replace(',', '.')
@@ -65,6 +66,7 @@ def _validate_float(*data):
 
 
 def _validate_concepts(*data):
+    """Validate the concept of input data."""
     for datum in data:
         if datum <= 0:
             raise ConceptError('Input value for {param}'
@@ -73,14 +75,46 @@ def _validate_concepts(*data):
             raise InfiniteValueError('Input value for {param} must not'
                                      ' be infinite'.format(param=datum))
 
-def viscosity_index(KV40, KV100):
-    """Calculate the VI by ASTM-D2270.
 
-    :param
-    v40:  kinematic viscosity at 40°C of the oil whose viscosity
-          index is to be calculated mm^2/s (cSt).
-    v100: kinematic viscosity at 100°C of the oil whose viscosity
-          index is to be calculated, mm^2/s (cSt)
+def viscosity_index(KV40, KV100):
+    """Calculate the Viscosity Index (VI) by ASTM-D2270.
+
+    - Viscosity Index Up to and Including 100
+
+          (L - KV40)
+    VI = ----------- * 100
+           (L - H)
+
+    where:
+
+    KV40:  kinematic viscosity at 40°C of the oil whose viscosity
+           index is to be calculated mm^2/s (cSt).
+    KV100: kinematic viscosity at 100°C of the oil whose viscosity
+           index is to be calculated, mm^2/s (cSt)
+    L: kinematic viscosity at 40°C of an oil of 0 viscosity
+       index having the same kinematic viscosity at 100°C as
+       the oil whose viscosity index is to be calculated,
+       mm^2/s (cSt)
+       L = a * KV100 ** 2 + b * KV100 + c
+       a, b, c: coefficients
+    H: kinematic viscosity at 40°C of an oil of 100 viscosity
+       index having the same kinematic viscosity at 100°C as
+       the oil whose viscosity index is to be calculated mm 2 /s
+       (cSt)
+       H = d * KV100 ** 2 + e * KV100 + f
+       d, e, f: coefficients
+
+    - Viscosity Index of 100 and Greater
+
+           (10^N - 1)
+    VI = ------------- + 100
+            0.00715
+
+    where:
+
+        log10(H) - log10(KV40)
+    N = ----------------------
+              log10(KV100)
     """
     KV40, KV100 = _validate_float(KV40, KV100)
     _validate_concepts(KV40, KV100)
@@ -116,27 +150,15 @@ def viscosity_index(KV40, KV100):
             a, b, c, d, e, f = v
             break
 
-    # L: kinematic viscosity at 40°C of an oil of 0 viscosity
-    #    index having the same kinematic viscosity at 100°C as
-    #    the oil whose viscosity index is to be calculated,
-    #    mm 2 /s (cSt)
     L = a * KV100 ** 2 + b * KV100 + c
 
-    # H: kinematic viscosity at 40°C of an oil of 100 viscosity
-    #    index having the same kinematic viscosity at 100°C as
-    #    the oil whose viscosity index is to be calculated mm 2 /s
-    #    (cSt)
     H = d * KV100 ** 2 + e * KV100 + f
 
     if KV40 >= H:
-        # Viscosity Index Up to and Including 100
-        # VI = ((L - v40) / (L - H)) * 100
         return round(((L - KV40) / (L - H)) * 100)
 
     N = (math.log10(H) - math.log10(KV40)) / math.log10(KV100)
 
-    # Viscosity Index of 100 and Greater
-    # VI = ((10 ** N - 1) / 0.00715) + 100
     return round(((10 ** N - 1) / 0.00715) + 100)
 
 
