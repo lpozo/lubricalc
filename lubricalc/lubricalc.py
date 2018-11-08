@@ -28,47 +28,52 @@ from lubricalc.exception import *
 def reynolds(V, Lc, v):
     """Return the Reynolds number (Re).
 
-    :param
+          V * Lc
+    Re = --------       [(m/s m) / m^2/s]
+            v
+    where:
     V: velocity (m/s)
-
     Lc: characteristic length (m)
-    For circular session Lc = D
-        D: diameter
-    For square session Lc = L
-        L: side
-    For rectangle session Lc = (2 * a * b) / (a + b)
-        a, b: sides
-
+        For circular session Lc = D
+            D: diameter
+        For square session Lc = L
+            L: side
+        For rectangle session Lc = (2 * a * b) / (a + b)
+            a, b: sides
     v: Kinematic Viscosity (m^2/s)
-
-    :return
-    Re = V * Lc / v    [(m/s m) / m^2/s]
 
     Re < 2000 => Laminar flow
     Re > 4000 => Turbulent flow
     """
+    V, Lc, v = _validate_float(V, Lc, v)
+    _validate_concepts(V, Lc, v)
+
     return round(V * Lc / v, 1)
 
 
-def _data_is_valid(*data):
+def _validate_float(*data):
     validated_data = []
     for datum in data:
         datum = str(datum).replace(',', '.')
         try:
             validated_data.append(float(datum))
         except ValueError:
-            raise ValueError('Input Data must be valid numbers')
-
-    for datum in validated_data:
-        if datum == float('inf'):
-            raise InfiniteValueError('Input Data must not be infinite')
-        if datum < 0:
-            raise NegativeValuerError('Input Data must be positive numbers')
+            raise ValueError('Input value for {param} must be a'
+                             ' valid number'.format(param=datum))
 
     return validated_data
 
 
-def viscosity_index_astm_d2270(v40, v100):
+def _validate_concepts(*data):
+    for datum in data:
+        if datum <= 0:
+            raise ConceptError('Input value for {param}'
+                               ' is a concept error'.format(param=datum))
+        if datum == float('inf'):
+            raise InfiniteValueError('Input value for {param} must not'
+                                     ' be infinite'.format(param=datum))
+
+def viscosity_index(KV40, KV100):
     """Calculate the VI by ASTM-D2270.
 
     :param
@@ -77,11 +82,12 @@ def viscosity_index_astm_d2270(v40, v100):
     v100: kinematic viscosity at 100°C of the oil whose viscosity
           index is to be calculated, mm^2/s (cSt)
     """
-    v40, v100 = _data_is_valid(v40, v100)
+    KV40, KV100 = _validate_float(KV40, KV100)
+    _validate_concepts(KV40, KV100)
 
-    if v100 > v40:
-        raise ViscosityConceptError('Viscosity at 40°C must be'
-                                    ' greater than Viscosity at 100°C')
+    if KV100 > KV40:
+        raise ConceptError('Viscosity at 40°C must be'
+                           ' greater than Viscosity at 100°C')
 
     up = float('inf')
     coefficients = {
@@ -106,7 +112,7 @@ def viscosity_index_astm_d2270(v40, v100):
     a, b, c, d, e, f = [0] * 6
 
     for k, v in coefficients.items():
-        if k[0] <= v100 < k[1]:
+        if k[0] <= KV100 < k[1]:
             a, b, c, d, e, f = v
             break
 
@@ -114,20 +120,20 @@ def viscosity_index_astm_d2270(v40, v100):
     #    index having the same kinematic viscosity at 100°C as
     #    the oil whose viscosity index is to be calculated,
     #    mm 2 /s (cSt)
-    L = a * v100 ** 2 + b * v100 + c
+    L = a * KV100 ** 2 + b * KV100 + c
 
     # H: kinematic viscosity at 40°C of an oil of 100 viscosity
     #    index having the same kinematic viscosity at 100°C as
     #    the oil whose viscosity index is to be calculated mm 2 /s
     #    (cSt)
-    H = d * v100 ** 2 + e * v100 + f
+    H = d * KV100 ** 2 + e * KV100 + f
 
-    if v40 >= H:
+    if KV40 >= H:
         # Viscosity Index Up to and Including 100
         # VI = ((L - v40) / (L - H)) * 100
-        return round(((L - v40) / (L - H)) * 100)
+        return round(((L - KV40) / (L - H)) * 100)
 
-    N = (math.log10(H) - math.log10(v40)) / math.log10(v100)
+    N = (math.log10(H) - math.log10(KV40)) / math.log10(KV100)
 
     # Viscosity Index of 100 and Greater
     # VI = ((10 ** N - 1) / 0.00715) + 100

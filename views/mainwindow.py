@@ -109,8 +109,8 @@ class ViscosityIndexTab(BaseTab):
 
     def on_calculate_btn_clicked(self):
         try:
-            vi = viscosity_index_astm_d2270(v40=self.v40_line_edit.text(),
-                                            v100=self.v100_line_edit.text())
+            vi = viscosity_index(KV40=self.v40_line_edit.text(),
+                                 KV100=self.v100_line_edit.text())
             self.vi_label.setText('Viscosity Index = ' + str(vi))
         except ValueError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
@@ -119,7 +119,7 @@ class ViscosityIndexTab(BaseTab):
                                   ' at 40°C and at 100°C',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except ViscosityConceptError:
+        except ConceptError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity at 40°C must be'

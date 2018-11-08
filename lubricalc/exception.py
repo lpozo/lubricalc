@@ -22,7 +22,7 @@
 """This module provides Exceptions."""
 
 
-class ViscosityConceptError(Exception):
+class ConceptError(Exception):
     pass
 
 
@@ -30,5 +30,5 @@ class InfiniteValueError(Exception):
     pass
 
 
-class NegativeValuerError(Exception):
+class NegativeValueError(Exception):
     pass

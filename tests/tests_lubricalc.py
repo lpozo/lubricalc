@@ -22,24 +22,54 @@
 
 """This module provides tests for cli.py."""
 
-from nose import run
+import nose
+
 from lubricalc.lubricalc import *
 
 
-class TestLubricalc:
-    """Class to test Lubricalc."""
+class TestReynolds:
+    """Class to test Reynolds."""
 
-    def test_reynolds(self):
-        assert reynolds(15, 0.01, 0.00015) == 1000
+    def test_reynolds_float_input(self):
+        assert reynolds(15.0, 0.01, 0.00015) == 1000
 
-    def test_viscosity_index_astm_d2270_156(self):
-        assert viscosity_index_astm_d2270(v40=22.83, v100=5.05) == 156
+    def test_reynolds_int_input(self):
+        assert reynolds(15, 10, 15) == 10
 
-    def test_viscosity_index_astm_d2270_92(self):
-        assert viscosity_index_astm_d2270(v40=73.3, v100=8.86) == 92
+    def test_reynolds_strings_input(self):
+        assert reynolds('15', '0.01', '0.00015') == 1000
 
-    def test_viscosity_index_astm_d2270_146(self):
-        assert viscosity_index_astm_d2270(v40=138.9, v100=18.1) == 145
+    def test_reynolds_stings_coma_input(self):
+        assert reynolds('15,0', '0,01', '0,00015') == 1000
+
+    @nose.tools.raises(ConceptError)
+    def test_reynolds_negative_input(self):
+        reynolds('-15,0', '0,01', '0,00015')
+
+    @nose.tools.raises(ConceptError)
+    def test_reynolds_viscosity_zero_input(self):
+        reynolds('15,0', '0,05', '0,0')
+
+    @nose.tools.raises(ConceptError)
+    def test_reynolds_zero_input(self):
+        reynolds('0', '0,05', '0,00015')
+
+    @nose.tools.raises(InfiniteValueError)
+    def test_reynolds_inf_input(self):
+        reynolds(float('inf'), 0.01, 0.00015)
+
+
+class TestViscosityIndex:
+    """Class to test viscosity_index."""
+
+    def test_viscosity_index_156(self):
+        assert viscosity_index(KV40=22.83, KV100=5.05) == 156
+
+    def test_viscosity_index_92(self):
+        assert viscosity_index(KV40=73.3, KV100=8.86) == 92
+
+    def test_viscosity_index_145(self):
+        assert viscosity_index(KV40=138.9, KV100=18.1) == 145
 
     def test_oil_mix(self):
         mix = OilMixture()
@@ -89,4 +119,4 @@ class TestBearing:
 
 
 if __name__ == '__main__':
-    run()
+    nose.run()
