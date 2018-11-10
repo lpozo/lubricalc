@@ -25,8 +25,8 @@ import math
 from lubricalc.exception import *
 
 
-def reynolds(V, Lc, v):
-    """Return the Reynolds number (Re).
+def reynolds_number(velocity, length, viscosity):
+    """Calculate Reynolds number (Re).
 
           V * Lc
     Re = --------       [(m/s m) / m^2/s]
@@ -38,30 +38,50 @@ def reynolds(V, Lc, v):
             D: diameter
         For square session Lc = L
             L: side
-        For rectangle session Lc = (2 * a * b) / (a + b)
+                                     (2 * a * b)
+        For rectangular session Lc = -----------
+                                       (a + b)
             a, b: sides
     v: Kinematic Viscosity (m^2/s)
+    """
+    velocity, length, viscosity = _validate_float(velocity, length, viscosity)
+    _validate_concepts(velocity, length, viscosity)
+
+    return round(velocity * length / viscosity, 1)
+
+
+def flow_type(velocity, length, viscosity):
+    """Determine the flow type of a fluid.
 
     Re < 2000 => Laminar flow
+    2000.0 < reynolds < 4000.0 => Mixed flow
     Re > 4000 => Turbulent flow
     """
-    V, Lc, v = _validate_float(V, Lc, v)
-    _validate_concepts(V, Lc, v)
-
-    return round(V * Lc / v, 1)
+    reynolds = reynolds_number(velocity, length, viscosity)
+    if reynolds <= 2000.0:
+        return 'laminar'
+    if reynolds >= 4000.0:
+        return 'turbulent'
+    if 2000.0 < reynolds < 4000.0:
+        return 'mixed'
 
 
 def _validate_float(*data):
     """Validate the input data."""
     validated_data = []
     for datum in data:
-        datum = str(datum).replace(',', '.')
+        datum = str(datum).replace(',', '.').strip()
         try:
-            validated_data.append(float(datum))
+            datum = float(datum)
+            validated_data.append(datum)
         except ValueError:
-            raise ValueError('Input value for {param} must be a'
-                             ' valid number'.format(param=datum))
+            raise ValueError('Input value must be a valid number')
 
+        if datum == float('inf'):
+            raise InfiniteValueError('Input value must not be infinite')
+
+    if validated_data.__len__() == 1:
+        return validated_data[0]
     return validated_data
 
 
@@ -69,21 +89,23 @@ def _validate_concepts(*data):
     """Validate the concept of input data."""
     for datum in data:
         if datum <= 0:
-            raise ConceptError('Input value for {param}'
-                               ' is a concept error'.format(param=datum))
-        if datum == float('inf'):
-            raise InfiniteValueError('Input value for {param} must not'
-                                     ' be infinite'.format(param=datum))
+            raise ConceptError('Input value is a concept error')
 
 
-def viscosity_index(KV40, KV100):
+def _validate_viscosity(*data):
+    for datum in data:
+        if datum < 2:
+            raise ConceptError('Input value is a concept error')
+
+
+def viscosity_index(viscosity_40, viscosity_100):
     """Calculate the Viscosity Index (VI) by ASTM-D2270.
 
     - Viscosity Index Up to and Including 100
 
-          (L - KV40)
-    VI = ----------- * 100
-           (L - H)
+           (L - KV40)
+    VI = ------------- * 100
+            (L - H)
 
     where:
 
@@ -106,22 +128,21 @@ def viscosity_index(KV40, KV100):
 
     - Viscosity Index of 100 and Greater
 
-           (10^N - 1)
-    VI = ------------- + 100
-            0.00715
+            (10^N - 1)
+    VI = --------------- + 100
+             0.00715
 
     where:
 
-        log10(H) - log10(KV40)
-    N = ----------------------
-              log10(KV100)
+          log10(H) - log10(KV40)
+    N = --------------------------
+               log10(KV100)
     """
-    KV40, KV100 = _validate_float(KV40, KV100)
-    _validate_concepts(KV40, KV100)
-
-    if KV100 > KV40:
-        raise ConceptError('Viscosity at 40°C must be'
-                           ' greater than Viscosity at 100°C')
+    viscosity_40, viscosity_100 = _validate_float(viscosity_40, viscosity_100)
+    if viscosity_100 > viscosity_40:
+        raise InvertedViscosityError('Viscosity at 40°C must be'
+                                     ' greater than Viscosity at 100°C')
+    _validate_viscosity(viscosity_40, viscosity_100)
 
     up = float('inf')
     coefficients = {
@@ -146,42 +167,44 @@ def viscosity_index(KV40, KV100):
     a, b, c, d, e, f = [0] * 6
 
     for k, v in coefficients.items():
-        if k[0] <= KV100 < k[1]:
+        if k[0] <= viscosity_100 < k[1]:
             a, b, c, d, e, f = v
             break
 
-    L = a * KV100 ** 2 + b * KV100 + c
+    L = a * viscosity_100 ** 2 + b * viscosity_100 + c
 
-    H = d * KV100 ** 2 + e * KV100 + f
+    H = d * viscosity_100 ** 2 + e * viscosity_100 + f
 
-    if KV40 >= H:
-        return round(((L - KV40) / (L - H)) * 100)
+    if viscosity_40 >= H:
+        return round(((L - viscosity_40) / (L - H)) * 100)
 
-    N = (math.log10(H) - math.log10(KV40)) / math.log10(KV100)
+    N = (math.log10(H) - math.log10(viscosity_40)) / math.log10(viscosity_100)
 
     return round(((10 ** N - 1) / 0.00715) + 100)
 
 
-def viscosity_at_40(KV100, VI):
+def viscosity_at_40(viscosity_100, v_index):
     """Calculate the Kinematic Viscosity at 40°C."""
-    KV100 = float(KV100)
-    VI = float(VI)
-    vindex = VI
-    n = KV100
-    while vindex >= VI and n <= 2000:
-        vindex = viscosity_index(n, KV100)
+    viscosity_100, v_index = _validate_float(viscosity_100, v_index)
+    _validate_viscosity(viscosity_100)
+
+    temp_v_index = v_index
+    n = viscosity_100
+    while temp_v_index >= v_index and n <= 2000:
+        temp_v_index = viscosity_index(n, viscosity_100)
         n += 0.05
     return round((n * 100 + 0.1) / 100, 2)
 
 
-def viscosity_at_100(KV40, VI):
+def viscosity_at_100(viscosity_40, v_index):
     """Calculate the Kinematic Viscosity at 100°C."""
-    KV40 = float(KV40)
-    VI = float(VI)
-    vindex = VI
+    viscosity_40, v_index = _validate_float(viscosity_40, v_index)
+    _validate_viscosity(viscosity_40)
+
+    temp_v_index = v_index
     n = 2
-    while vindex <= VI and n <= 500.0:
-        vindex = viscosity_index(KV40, n)
+    while temp_v_index <= v_index and n <= 500.0:
+        temp_v_index = viscosity_index(viscosity_40, n)
         n += 0.01
     return round((n * 100 + 0.01) / 100, 2)
 
@@ -189,15 +212,8 @@ def viscosity_at_100(KV40, VI):
 class Bearing:
     """Class to define calculations related with bearings."""
 
-    def __init__(self, D, d, B, temperature, rpm):
-        """Class initializer."""
-        self.outer_diameter = D
-        self.inner_diameter = d
-        self.width = B
-        self.temperature = temperature
-        self.rpm = rpm
-
-    def grease_amount(self):
+    @classmethod
+    def grease_amount(cls, outer_diameter, width):
         """Return the amount of grease needed for re-lubrication.
 
         Gg = 0.005 * D * B
@@ -206,16 +222,20 @@ class Bearing:
         D: Outer diameter of bearing (mm)
         B: Total width of bearing (mm)
         """
-        Gg = 0.005 * self.outer_diameter * self.width
 
-        return round(Gg, 2)
+        outer_diameter, width = _validate_float(outer_diameter, width)
+        _validate_concepts(outer_diameter, width)
 
-    def lubrication_frequency(self, contamination, moisture,
-                              vibration, position, design):
-        """Return the re-lubrication frequency.
-                    14000000
-        T = K * [(--------------) - 4 * d]
-                   n * sqrt(d)
+        grease_amount = 0.005 * outer_diameter * width
+
+        return round(grease_amount, 2)
+
+    @classmethod
+    def lubrication_frequency(cls, rpm, inner_diameter, **factors):
+        """Calculate the re-lubrication frequency in hours.
+                       14000000
+        T = K * [(------------------) - 4 * d]
+                      n * sqrt(d)
         where:
         T: Frequency of re-lubrication (hours)
         K: Corrections factors
@@ -237,9 +257,9 @@ class Bearing:
                 Occasional condensation, then Fh = 0.4
                 Water, then Fh = 0.2
             Fv: Vibrations factor
-                Top speed < 0.2 ips (inch per second) then Fv = 1.0
-                0.2 to 0.4 ips, then Fv = 0.6
-                > 0.4 ips, then Fv = 0.3
+                Top speed < 0.5 cm/s, then Fv = 1.0
+                0.5 to 1.0 cm/s, then Fv = 0.6
+                > 1.0 cm/s, then Fv = 0.3
             Fp: Shaft position factor
                 Horizontal, then Fp = 1.0
                 45 degrees, then Fp = 0.5
@@ -251,94 +271,65 @@ class Bearing:
         n: Rotation speed (rpm)
         d: Inner diameter of the bearing (mm)
         """
-        Ft = self._claculate_Ft()
+        factors_map = {'ft': (1.0, 0.5, 0.2, 0.1),
+                       'fc': (1.0, 0.7, 0.4, 0.2),
+                       'fh': (1.0, 0.7, 0.4, 0.1),
+                       'fv': (1.0, 0.6, 0.3),
+                       'fp': (1.0, 0.5, 0.3),
+                       'fd': (10.0, 5.0, 1.0)}
 
-        Fc = self._calculate_Fc(contamination)
+        rpm, inner_diameter = _validate_float(rpm, inner_diameter)
+        _validate_concepts(rpm, inner_diameter)
 
-        Fh = self._calculate_Fh(moisture)
+        k_factor = 1
 
-        Fv = self._calculate_Fv(vibration)
+        for k, v in factors.items():
+            v = int(v)
+            k_factor *= factors_map[k][v]
 
-        Fp = self._calculate_Fp(position)
+        frequency = k_factor * ((14_000_000 /
+                                 (rpm * math.sqrt(inner_diameter))) -
+                                4 * inner_diameter)
 
-        Fd = self._calculate_Fd(design)
+        return round(frequency)
 
-        K = Ft * Fc * Fh * Fv * Fp * Fd
-
-        T = K * ((14_000_000 / (self.rpm * math.sqrt(self.inner_diameter))) -
-                 4 * self.inner_diameter)
-
-        return round(T)
-
-    def speed_factor(self):
-        """Return the speed factor of a bearing.
+    @classmethod
+    def speed_factor(cls, outer_diameter, inner_diameter, rpm):
+        """Calculate the speed factor of a bearing.
 
         A = n * dm
         where:
         A: Speed factor (mm/min)
         n: rotation speed (rpm)
         dm: mean diameter (mm)
-             (D + d)
-        dm = -------
-                2
+               (D + d)
+        dm = -----------
+                  2
         """
-        return self.rpm * (self.outer_diameter + self.inner_diameter) / 2
-
-    def _claculate_Ft(self):
-        up = float('inf')
-        ft_map = {(0, 65.0): 1.0,
-                  (65.0, 80.0): 0.5,
-                  (80.0, 93.0): 0.2,
-                  (93.0, up): 0.1}
-
-        Ft = None
-        for k, v in ft_map.items():
-            if k[0] <= self.temperature < k[1]:
-                Ft = v
-                break
-
-        return Ft
-
-    def _calculate_Fc(self, item):
-        fc_map = (1.0, 0.7, 0.4, 0.2)
-        return fc_map[item]
-
-    def _calculate_Fh(self, item):
-        fh_map = (1.0, 0.7, 0.4, 0.1)
-        return fh_map[item]
-
-    def _calculate_Fv(self, item):
-        fv_map = (1.0, 0.6, 0.3)
-        return fv_map[item]
-
-    def _calculate_Fp(self, item):
-        fp_map = (1.0, 0.5, 0.3)
-        return fp_map[item]
-
-    def _calculate_Fd(self, item):
-        fd_map = (10.0, 5.0, 1.0)
-        return fd_map[item]
+        return rpm * (outer_diameter + inner_diameter) / 2
 
 
 class OilBlend:
     """Class to calculate some parameters of a motor oil blend."""
-    def __init__(self, additive_percent=0.0):
-        self.additive_percent = additive_percent
-        self.contributions = {'zinc': 1.50,
-                              'barium': 1.70,
-                              'sodium': 3.09,
-                              'calcium': 3.40,
-                              'magnesium': 4.95,
-                              'lead': 1.464,
-                              'boron': 3.22,
-                              'potassium': 2.23,
-                              'manganese': 1.291,
-                              'molybdenum': 1.5,
-                              'copper': 1.252}
+    contributions = {'zinc': 1.50,
+                     'barium': 1.70,
+                     'sodium': 3.09,
+                     'calcium': 3.40,
+                     'magnesium': 4.95,
+                     'lead': 1.464,
+                     'boron': 3.22,
+                     'potassium': 2.23,
+                     'manganese': 1.291,
+                     'molybdenum': 1.5,
+                     'copper': 1.252}
 
-    @property
-    def metals(self):
-        return self.contributions.keys()
+    def __init__(self, additive_percent):
+        self.additive_percent = _validate_float(additive_percent)
+        _validate_concepts(self.additive_percent)
+
+    @classmethod
+    def metals(cls):
+        return cls.contributions.keys()
 
     def additive_percent_mass(self, additive_density, final_oil_density):
         """Return the % by mass of Additive in a motor oil.
@@ -347,6 +338,10 @@ class OilBlend:
         Additive (% mass) = ----------------------------------------------
                                 Density of Finished Oil (kg/L)
         """
+        additive_density, final_oil_density = _validate_float(
+            additive_density, final_oil_density)
+        _validate_concepts(additive_density, final_oil_density)
+
         return round((additive_density * self.additive_percent) /
                      final_oil_density, 2)
 

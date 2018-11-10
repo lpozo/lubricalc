@@ -31,73 +31,80 @@ class TestReynolds:
     """Class to test Reynolds."""
 
     def test_reynolds_float_input(self):
-        assert reynolds(15.0, 0.01, 0.00015) == 1000
+        assert reynolds_number(15.0, 0.01, 0.00015) == 1000
 
     def test_reynolds_int_input(self):
-        assert reynolds(15, 10, 15) == 10
+        assert reynolds_number(15, 10, 15) == 10
 
     def test_reynolds_strings_input(self):
-        assert reynolds('15', '0.01', '0.00015') == 1000
+        assert reynolds_number('15', '0.01', '0.00015') == 1000
+
+    def test_reynolds_strings_space_input(self):
+        assert reynolds_number('15 ', '  0.01', ' 0.00015  ') == 1000
 
     def test_reynolds_stings_coma_input(self):
-        assert reynolds('15,0', '0,01', '0,00015') == 1000
+        assert reynolds_number('15,0', '0,01', '0,00015') == 1000
 
     @nose.tools.raises(ConceptError)
     def test_reynolds_negative_input(self):
-        reynolds('-15,0', '0,01', '0,00015')
+        reynolds_number('-15,0', '0,01', '0,00015')
 
     @nose.tools.raises(ConceptError)
     def test_reynolds_viscosity_zero_input(self):
-        reynolds('15,0', '0,05', '0,0')
+        reynolds_number('15,0', '0,05', '0,0')
 
     @nose.tools.raises(ConceptError)
     def test_reynolds_zero_input(self):
-        reynolds('0', '0,05', '0,00015')
+        reynolds_number('0', '0,05', '0,00015')
 
     @nose.tools.raises(InfiniteValueError)
     def test_reynolds_inf_input(self):
-        reynolds(float('inf'), 0.01, 0.00015)
+        reynolds_number(float('inf'), 0.01, 0.00015)
 
 
-class TestViscosityIndex:
+class TestViscosity:
     """Class to test viscosity_index."""
 
     def test_viscosity_index_156(self):
-        assert viscosity_index(KV40=22.83, KV100=5.05) == 156
+        assert viscosity_index(viscosity_40=22.83, viscosity_100=5.05) == 156
 
     def test_viscosity_index_92(self):
-        assert viscosity_index(KV40=73.3, KV100=8.86) == 92
+        assert viscosity_index(viscosity_40=73.3, viscosity_100=8.86) == 92
 
     def test_viscosity_index_145(self):
-        assert viscosity_index(KV40=138.9, KV100=18.1) == 145
+        assert viscosity_index(viscosity_40=138.9, viscosity_100=18.1) == 145
 
     def test_viscosity_index_string_input(self):
-        assert viscosity_index(KV40='138.9', KV100='18.1') == 145
+        assert viscosity_index(viscosity_40='138.9', viscosity_100='18.1') == 145
 
     def test_viscosity_index_coma_input(self):
-        assert viscosity_index(KV40='138,9', KV100='18,1') == 145
+        assert viscosity_index(viscosity_40='138,9', viscosity_100='18,1') == 145
 
     @nose.tools.raises(InfiniteValueError)
     def test_viscosity_index_inf_input(self):
-        viscosity_index(KV40=float('inf'), KV100='18,1')
+        viscosity_index(viscosity_40=float('inf'), viscosity_100='18,1')
 
-    @nose.tools.raises(ConceptError)
+    @nose.tools.raises(InvertedViscosityError)
     def test_viscosity_index_cero_kv40_input(self):
-        viscosity_index(KV40=0, KV100='18,1')
+        viscosity_index(viscosity_40=0, viscosity_100='18,1')
 
     @nose.tools.raises(ConceptError)
     def test_viscosity_index_cero_kv100_input(self):
-        viscosity_index(KV40=150, KV100=0)
+        viscosity_index(viscosity_40=150, viscosity_100=0)
+
+    @nose.tools.raises(InvertedViscosityError)
+    def test_viscosity_index_kv40_lt_kv100_input(self):
+        viscosity_index(viscosity_40=15, viscosity_100=150)
 
     @nose.tools.raises(ConceptError)
-    def test_viscosity_index_cero_kv40_lt_kv100_input(self):
-        viscosity_index(KV40=15, KV100=150)
+    def test_viscosity_index_input_lt_2(self):
+        viscosity_index(viscosity_40=1.5, viscosity_100=1)
 
     def test_viscosity_at_40(self):
-        assert viscosity_at_40(KV100=15, VI=130) == 119.6
+        assert viscosity_at_40(viscosity_100=15, v_index=130) == 119.6
 
     def test_viscosity_at_100(self):
-        assert viscosity_at_100(KV40=112, VI=140) == 15.12
+        assert viscosity_at_100(viscosity_40=112, v_index=140) == 15.12
 
 
 class TestOilMixture:
@@ -116,7 +123,7 @@ class TestOilBlend:
     """Class to test OilBlend."""
 
     def test_additive_percent_mass(self):
-        blend = OilBlend(8.0)
+        blend = OilBlend(additive_percent=8.0)
         assert blend.additive_percent_mass(additive_density=0.959,
                                            final_oil_density=0.881) == 8.71
 
@@ -132,22 +139,22 @@ class TestBearing:
 
     def test_grease_amount(self):
         """Test grease_amount()."""
-        bearing = Bearing(25, 18, 60, 12, 1750)
-        assert bearing.grease_amount() == 7.5
+        assert Bearing.grease_amount(25, 60) == 7.5
 
     def test_lubrication_frequency(self):
         """Test lubrication_frequency()."""
-        bearing = Bearing(25, 18, 60, 12, 1750)
-        assert bearing.lubrication_frequency(contamination=1,
-                                             moisture=2,
-                                             vibration=0,
-                                             position=0,
-                                             design=2) == 508
+        assert Bearing.lubrication_frequency(rpm=1750,
+                                             inner_diameter=18,
+                                             ft=0,
+                                             fc=1,
+                                             fh=2,
+                                             fv=0,
+                                             fp=0,
+                                             fd=2) == 508
 
     def test_speed_factor(self):
         """Test speed_factor()."""
-        bearing = Bearing(58, 45, 12, 60, 3000)
-        assert bearing.speed_factor() == 154500
+        assert Bearing.speed_factor(58, 45, 3000) == 154500
 
 
 if __name__ == '__main__':
