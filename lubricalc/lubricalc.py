@@ -96,13 +96,13 @@ def viscosity_index(KV40, KV100):
        the oil whose viscosity index is to be calculated,
        mm^2/s (cSt)
        L = a * KV100 ** 2 + b * KV100 + c
-       a, b, c: coefficients
+       a, b, c: interpolation coefficients
     H: kinematic viscosity at 40°C of an oil of 100 viscosity
        index having the same kinematic viscosity at 100°C as
        the oil whose viscosity index is to be calculated mm 2 /s
        (cSt)
        H = d * KV100 ** 2 + e * KV100 + f
-       d, e, f: coefficients
+       d, e, f: interpolation coefficients
 
     - Viscosity Index of 100 and Greater
 
@@ -160,6 +160,30 @@ def viscosity_index(KV40, KV100):
     N = (math.log10(H) - math.log10(KV40)) / math.log10(KV100)
 
     return round(((10 ** N - 1) / 0.00715) + 100)
+
+
+def viscosity_at_40(KV100, VI):
+    """Calculate the Kinematic Viscosity at 40°C."""
+    KV100 = float(KV100)
+    VI = float(VI)
+    vindex = VI
+    n = KV100
+    while vindex >= VI and n <= 2000:
+        vindex = viscosity_index(n, KV100)
+        n += 0.05
+    return round((n * 100 + 0.1) / 100, 2)
+
+
+def viscosity_at_100(KV40, VI):
+    """Calculate the Kinematic Viscosity at 100°C."""
+    KV40 = float(KV40)
+    VI = float(VI)
+    vindex = VI
+    n = 2
+    while vindex <= VI and n <= 500.0:
+        vindex = viscosity_index(KV40, n)
+        n += 0.01
+    return round((n * 100 + 0.01) / 100, 2)
 
 
 class Bearing:

@@ -93,8 +93,15 @@ class TestViscosityIndex:
     def test_viscosity_index_cero_kv40_lt_kv100_input(self):
         viscosity_index(KV40=15, KV100=150)
 
+    def test_viscosity_at_40(self):
+        assert viscosity_at_40(KV100=15, VI=130) == 119.6
+
+    def test_viscosity_at_100(self):
+        assert viscosity_at_100(KV40=112, VI=140) == 15.12
+
+
 class TestOilMixture:
-    """Class to test OilMixture class"""
+    """Class to test OilMixture class."""
 
     def test_oil_mix(self):
         mix = OilMixture()

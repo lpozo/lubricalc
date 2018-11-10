@@ -78,9 +78,14 @@ class ViscosityIndexTab(BaseTab):
 
     def __init__(self):
         super().__init__()
-        self.text = 'Viscosity Index'
+        self.text = 'Viscosity'
         self.setup_ui()
-        self.calculate_button.clicked.connect(self.on_calculate_btn_clicked)
+        self.calculate_viscosity_index_button.clicked.connect(
+            self.on_calculate_viscosity_index_btn_clicked)
+        self.calculate_viscosity_at_40_button.clicked.connect(
+            self.on_calculate_viscosity_at_40_btn_clicked)
+        self.calculate_viscosity_at_100_button.clicked.connect(
+            self.on_calculate_viscosity_at_100_btn_clicked)
 
     def setup_ui(self):
         """Setup tab UI."""
@@ -88,28 +93,65 @@ class ViscosityIndexTab(BaseTab):
         font.setBold(True)
         general_layout = QtWidgets.QVBoxLayout()
         general_layout.addWidget(self._create_viscosity_index_group(font))
+        general_layout.addWidget(self._create_viscosity_at_40_group(font))
+        general_layout.addWidget(self._create_viscosity_at_100_group(font))
         self.setLayout(general_layout)
 
     def _create_viscosity_index_group(self, font):
         viscosity_index_group = QtWidgets.QGroupBox('Viscosity Index')
         viscosity_index_layout = QtWidgets.QFormLayout()
-        self.v40_line_edit = QtWidgets.QLineEdit()
+        self.VI_line_edit = QtWidgets.QLineEdit()
         self.v100_line_edit = QtWidgets.QLineEdit()
         self.vi_label = QtWidgets.QLabel('Viscosity Index')
         self.vi_label.setFont(font)
-        self.calculate_button = QtWidgets.QPushButton('Calculate')
+        self.calculate_viscosity_index_button = QtWidgets.QPushButton('Calculate')
         viscosity_index_layout.addRow('Kinematic Viscosity at 40°C (cSt):',
-                                      self.v40_line_edit)
+                                      self.VI_line_edit)
         viscosity_index_layout.addRow('Kinematic Viscosity at 100°C (cSt):',
                                       self.v100_line_edit)
-        viscosity_index_layout.addRow(self.calculate_button, self.vi_label)
+        viscosity_index_layout.addRow(self.calculate_viscosity_index_button,
+                                      self.vi_label)
         viscosity_index_group.setLayout(viscosity_index_layout)
         self.vi_label.setToolTip(viscosity_index.__doc__)
         return viscosity_index_group
 
-    def on_calculate_btn_clicked(self):
+    def _create_viscosity_at_40_group(self, font):
+        viscosity_at_40_group = QtWidgets.QGroupBox('Kinematic Viscosity 40°C')
+        viscosity_at_40_layout = QtWidgets.QFormLayout()
+        self.KV100_line_edit = QtWidgets.QLineEdit()
+        self.VI_line_edit = QtWidgets.QLineEdit()
+        self.KV40_label = QtWidgets.QLabel('Kinematic Viscosity 40°C')
+        self.KV40_label.setFont(font)
+        self.calculate_viscosity_at_40_button = QtWidgets.QPushButton(
+            'Calculate')
+        viscosity_at_40_layout.addRow('Kinematic Viscosity at 100°C (cSt):',
+                                      self.KV100_line_edit)
+        viscosity_at_40_layout.addRow('Viscosity Index:', self.VI_line_edit)
+        viscosity_at_40_layout.addRow(self.calculate_viscosity_at_40_button,
+                                      self.KV40_label)
+        viscosity_at_40_group.setLayout(viscosity_at_40_layout)
+        return viscosity_at_40_group
+
+    def _create_viscosity_at_100_group(self, font):
+        viscosity_at_100_group = QtWidgets.QGroupBox('Kinematic Viscosity 100°C')
+        viscosity_at_100_layout = QtWidgets.QFormLayout()
+        self.KV40_line_edit = QtWidgets.QLineEdit()
+        self.VI2_line_edit = QtWidgets.QLineEdit()
+        self.KV100_label = QtWidgets.QLabel('Kinematic Viscosity 100°C')
+        self.KV100_label.setFont(font)
+        self.calculate_viscosity_at_100_button = QtWidgets.QPushButton(
+            'Calculate')
+        viscosity_at_100_layout.addRow('Kinematic Viscosity at 40°C (cSt):',
+                                      self.KV40_line_edit)
+        viscosity_at_100_layout.addRow('Viscosity Index:', self.VI2_line_edit)
+        viscosity_at_100_layout.addRow(self.calculate_viscosity_at_100_button,
+                                      self.KV100_label)
+        viscosity_at_100_group.setLayout(viscosity_at_100_layout)
+        return viscosity_at_100_group
+
+    def on_calculate_viscosity_index_btn_clicked(self):
         try:
-            vi = viscosity_index(KV40=self.v40_line_edit.text(),
+            vi = viscosity_index(KV40=self.VI_line_edit.text(),
                                  KV100=self.v100_line_edit.text())
             self.vi_label.setText('Viscosity Index = ' + str(vi))
         except ValueError:
@@ -126,6 +168,18 @@ class ViscosityIndexTab(BaseTab):
                                   ' greater than Viscosity at 100°C',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
+
+    def on_calculate_viscosity_at_40_btn_clicked(self):
+        result = viscosity_at_40(KV100=self.KV100_line_edit.text(),
+                                 VI=self.VI_line_edit.text())
+        self.KV40_label.setText('Kinematic Viscosity 40°C' + ' = ' +
+                                str(result) + ' ' + 'cSt')
+
+    def on_calculate_viscosity_at_100_btn_clicked(self):
+        result = viscosity_at_100(KV40=self.KV40_line_edit.text(),
+                                 VI=self.VI2_line_edit.text())
+        self.KV100_label.setText('Kinematic Viscosity 100°C' + ' = ' +
+                                 str(result) + ' ' + 'cSt')
 
 
 class BaseOilMixtureTab(BaseTab):
