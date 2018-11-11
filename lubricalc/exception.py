@@ -30,5 +30,9 @@ class ConceptError(Exception):
     pass
 
 
+class ViscosityConceptError(Exception):
+    pass
+
+
 class InfiniteValueError(Exception):
     pass

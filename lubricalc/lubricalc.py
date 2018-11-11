@@ -95,7 +95,7 @@ def _validate_concepts(*data):
 def _validate_viscosity(*data):
     for datum in data:
         if datum < 2:
-            raise ConceptError('Input value is a concept error')
+            raise ViscosityConceptError('Input value is a concept error')
 
 
 def viscosity_index(viscosity_40, viscosity_100):
@@ -186,6 +186,7 @@ def viscosity_index(viscosity_40, viscosity_100):
 def viscosity_at_40(viscosity_100, v_index):
     """Calculate the Kinematic Viscosity at 40°C."""
     viscosity_100, v_index = _validate_float(viscosity_100, v_index)
+    _validate_concepts(v_index)
     _validate_viscosity(viscosity_100)
 
     temp_v_index = v_index
@@ -199,6 +200,7 @@ def viscosity_at_40(viscosity_100, v_index):
 def viscosity_at_100(viscosity_40, v_index):
     """Calculate the Kinematic Viscosity at 100°C."""
     viscosity_40, v_index = _validate_float(viscosity_40, v_index)
+    _validate_concepts(v_index)
     _validate_viscosity(viscosity_40)
 
     temp_v_index = v_index

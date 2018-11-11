@@ -145,7 +145,7 @@ class ViscosityTab(BaseTab):
                                   ' greater than Viscosity at 100°C',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except ConceptError:
+        except ViscosityConceptError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity must be greater than 2',
@@ -153,17 +153,46 @@ class ViscosityTab(BaseTab):
                                   self).show()
 
     def on_viscosity_at_40_button_clicked(self):
-
-        result = viscosity_at_40(viscosity_100=self.viscosity1_100_edit.text(),
-                                 v_index=self.index0_edit.text())
-        self.viscosity_40_label.setText('Kinematic Viscosity at 40°C' + ' = ' +
-                                        str(result) + ' ' + 'cSt')
+        try:
+            result = viscosity_at_40(
+                viscosity_100=self.viscosity1_100_edit.text(),
+                v_index=self.index0_edit.text())
+            self.viscosity_40_label.setText('Kinematic Viscosity at 40°C' +
+                                            ' = ' + str(result) + ' ' + 'cSt')
+        except (ValueError, ConceptError):
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Enter valid data for Viscosity at 100°C '
+                                  'and Viscosity Index',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ViscosityConceptError:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Viscosity must be greater than 2',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
     def on_calculate_viscosity_at_100_btn_clicked(self):
-        result = viscosity_at_100(viscosity_40=self.viscosity1_40_edit.text(),
-                                  v_index=self.index1_edit.text())
-        self.viscosity_100_label.setText('Kinematic Viscosity at 100°C' +
-                                         ' = ' + str(result) + ' ' + 'cSt')
+        try:
+            result = viscosity_at_100(
+                viscosity_40=self.viscosity1_40_edit.text(),
+                v_index=self.index1_edit.text())
+            self.viscosity_100_label.setText('Kinematic Viscosity at 100°C' +
+                                             ' = ' + str(result) + ' ' + 'cSt')
+        except ValueError:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Enter valid data for Viscosity at 40°C '
+                                  'and Viscosity Index',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ViscosityConceptError:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  'Viscosity must be greater than 2',
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
 
 class BaseOilMixtureTab(BaseTab):

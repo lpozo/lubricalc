@@ -88,7 +88,7 @@ class TestViscosity:
     def test_viscosity_index_cero_kv40_input(self):
         viscosity_index(viscosity_40=0, viscosity_100='18,1')
 
-    @nose.tools.raises(ConceptError)
+    @nose.tools.raises(ViscosityConceptError)
     def test_viscosity_index_cero_kv100_input(self):
         viscosity_index(viscosity_40=150, viscosity_100=0)
 
@@ -96,7 +96,7 @@ class TestViscosity:
     def test_viscosity_index_kv40_lt_kv100_input(self):
         viscosity_index(viscosity_40=15, viscosity_100=150)
 
-    @nose.tools.raises(ConceptError)
+    @nose.tools.raises(ViscosityConceptError)
     def test_viscosity_index_input_lt_2(self):
         viscosity_index(viscosity_40=1.5, viscosity_100=1)
 
