@@ -78,7 +78,7 @@ def _validate_float(*data):
             raise ValueError('Input value must be a valid number')
 
         if datum == float('inf'):
-            raise InfiniteValueError('Input value must not be infinite')
+            raise ValueError('Input value must be a valid number')
 
     if validated_data.__len__() == 1:
         return validated_data[0]
@@ -95,7 +95,7 @@ def _validate_concepts(*data):
 def _validate_viscosity(*data):
     for datum in data:
         if datum < 2:
-            raise ViscosityConceptError('Input value is a concept error')
+            raise TooLowViscosityError('Input value is a concept error')
 
 
 def viscosity_index(viscosity_40, viscosity_100):

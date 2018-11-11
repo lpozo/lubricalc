@@ -145,7 +145,7 @@ class ViscosityTab(BaseTab):
                                   ' greater than Viscosity at 100°C',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except ViscosityConceptError:
+        except TooLowViscosityError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity must be greater than 2',
@@ -166,7 +166,7 @@ class ViscosityTab(BaseTab):
                                   'and Viscosity Index',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except ViscosityConceptError:
+        except TooLowViscosityError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity must be greater than 2',
@@ -187,7 +187,7 @@ class ViscosityTab(BaseTab):
                                   'and Viscosity Index',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except ViscosityConceptError:
+        except TooLowViscosityError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity must be greater than 2',

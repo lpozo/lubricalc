@@ -22,17 +22,13 @@
 """This module provides Exceptions."""
 
 
-class InvertedViscosityError(Exception):
-    pass
-
-
 class ConceptError(Exception):
     pass
 
 
-class ViscosityConceptError(Exception):
+class InvertedViscosityError(ConceptError):
     pass
 
 
-class InfiniteValueError(Exception):
+class TooLowViscosityError(ConceptError):
     pass

@@ -57,7 +57,7 @@ class TestReynolds:
     def test_reynolds_zero_input(self):
         reynolds_number('0', '0,05', '0,00015')
 
-    @nose.tools.raises(InfiniteValueError)
+    @nose.tools.raises(ValueError)
     def test_reynolds_inf_input(self):
         reynolds_number(float('inf'), 0.01, 0.00015)
 
@@ -80,7 +80,7 @@ class TestViscosity:
     def test_viscosity_index_coma_input(self):
         assert viscosity_index(viscosity_40='138,9', viscosity_100='18,1') == 145
 
-    @nose.tools.raises(InfiniteValueError)
+    @nose.tools.raises(ValueError)
     def test_viscosity_index_inf_input(self):
         viscosity_index(viscosity_40=float('inf'), viscosity_100='18,1')
 
@@ -88,7 +88,7 @@ class TestViscosity:
     def test_viscosity_index_cero_kv40_input(self):
         viscosity_index(viscosity_40=0, viscosity_100='18,1')
 
-    @nose.tools.raises(ViscosityConceptError)
+    @nose.tools.raises(TooLowViscosityError)
     def test_viscosity_index_cero_kv100_input(self):
         viscosity_index(viscosity_40=150, viscosity_100=0)
 
@@ -96,7 +96,7 @@ class TestViscosity:
     def test_viscosity_index_kv40_lt_kv100_input(self):
         viscosity_index(viscosity_40=15, viscosity_100=150)
 
-    @nose.tools.raises(ViscosityConceptError)
+    @nose.tools.raises(TooLowViscosityError)
     def test_viscosity_index_input_lt_2(self):
         viscosity_index(viscosity_40=1.5, viscosity_100=1)
 
