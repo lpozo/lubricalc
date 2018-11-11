@@ -31,31 +31,31 @@ class TestReynolds:
     """Class to test Reynolds."""
 
     def test_reynolds_float_input(self):
-        assert reynolds_number(15.0, 0.01, 0.00015) == 1000
+        assert reynolds_number(15.0, 0.01, 2) == 0.1
 
     def test_reynolds_int_input(self):
         assert reynolds_number(15, 10, 15) == 10
 
     def test_reynolds_strings_input(self):
-        assert reynolds_number('15', '0.01', '0.00015') == 1000
+        assert reynolds_number('15', '0.01', '2') == 0.1
 
     def test_reynolds_strings_space_input(self):
-        assert reynolds_number('15 ', '  0.01', ' 0.00015  ') == 1000
+        assert reynolds_number('15 ', '  0.01', ' 2  ') == 0.1
 
     def test_reynolds_stings_coma_input(self):
-        assert reynolds_number('15,0', '0,01', '0,00015') == 1000
+        assert reynolds_number('15,0', '0,01', '2,0') == 0.1
 
     @nose.tools.raises(ConceptError)
     def test_reynolds_negative_input(self):
-        reynolds_number('-15,0', '0,01', '0,00015')
+        reynolds_number('-15,0', '0,01', '2')
 
-    @nose.tools.raises(ConceptError)
+    @nose.tools.raises(TooLowViscosityError)
     def test_reynolds_viscosity_zero_input(self):
         reynolds_number('15,0', '0,05', '0,0')
 
     @nose.tools.raises(ConceptError)
     def test_reynolds_zero_input(self):
-        reynolds_number('0', '0,05', '0,00015')
+        reynolds_number('0', '0,05', '2')
 
     @nose.tools.raises(ValueError)
     def test_reynolds_inf_input(self):

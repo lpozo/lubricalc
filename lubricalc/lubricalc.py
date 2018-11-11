@@ -45,7 +45,8 @@ def reynolds_number(velocity, length, viscosity):
     v: Kinematic Viscosity (m^2/s)
     """
     velocity, length, viscosity = _validate_float(velocity, length, viscosity)
-    _validate_concepts(velocity, length, viscosity)
+    _validate_concepts(velocity, length)
+    _validate_viscosity(viscosity)
 
     return round(velocity * length / viscosity, 1)
 
