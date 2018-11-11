@@ -32,7 +32,3 @@ class ConceptError(Exception):
 
 class InfiniteValueError(Exception):
     pass
-
-
-class NegativeValueError(Exception):
-    pass
