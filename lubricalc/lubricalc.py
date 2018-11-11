@@ -110,7 +110,37 @@ class Reynolds:
 class Viscosity:
     """Class for calculations on Viscosity."""
 
-    def viscosity_index(self, viscosity_40, viscosity_100):
+    def __init__(self):
+        self._viscosity40 = None
+        self._viscosity100 = None
+        self._v_index = None
+        self._validator = Validator()
+
+    @property
+    def viscosity40(self):
+        return self._viscosity40
+
+    @viscosity40.setter
+    def viscosity40(self, value):
+        self._setter('Viscosity at 40°C', value, '_viscosity40', limit=2)
+
+    @property
+    def viscosity100(self):
+        return self._viscosity100
+
+    @viscosity100.setter
+    def viscosity100(self, value):
+        self._setter('Viscosity at 100°C', value, '_viscosity100', limit=2)
+
+    @property
+    def v_index(self):
+        return self._v_index
+
+    @v_index.setter
+    def v_index(self, value):
+        self._setter('Viscosity Index', value, '_v_index')
+
+    def viscosity_index(self, viscosity40, viscosity100):
         """Calculate the Viscosity Index (VI) by ASTM-D2270.
 
         - Viscosity Index Up to and Including 100
@@ -150,11 +180,12 @@ class Viscosity:
         N = --------------------------
                    log10(KV100)
         """
-        # viscosity_40, viscosity_100 = _validate_float(viscosity_40, viscosity_100)
-        # if viscosity_100 > viscosity_40:
-        #     raise InvertedViscosityError('Viscosity at 40°C must be'
-        #                                  ' greater than Viscosity at 100°C')
-        # _validate_viscosity(viscosity_40, viscosity_100)
+        # Validate Data
+        self.viscosity40 = viscosity40
+        self.viscosity100 = viscosity100
+        if self._viscosity100 > self._viscosity40:
+            raise InvertedViscosityError('Viscosity at 40°C must be'
+                                         ' greater than Viscosity at 100°C')
 
         up = float('inf')
         coefficients = {
@@ -179,18 +210,19 @@ class Viscosity:
         a, b, c, d, e, f = [0] * 6
 
         for k, v in coefficients.items():
-            if k[0] <= viscosity_100 < k[1]:
+            if k[0] <= self._viscosity100 < k[1]:
                 a, b, c, d, e, f = v
                 break
 
-        L = a * viscosity_100 ** 2 + b * viscosity_100 + c
+        L = a * self._viscosity100 ** 2 + b * self._viscosity100 + c
 
-        H = d * viscosity_100 ** 2 + e * viscosity_100 + f
+        H = d * self._viscosity100 ** 2 + e * self._viscosity100 + f
 
-        if viscosity_40 >= H:
-            return round(((L - viscosity_40) / (L - H)) * 100)
+        if self._viscosity40 >= H:
+            return round(((L - self._viscosity40) / (L - H)) * 100)
 
-        N = (math.log10(H) - math.log10(viscosity_40)) / math.log10(viscosity_100)
+        N = ((math.log10(H) - math.log10(self._viscosity40)) /
+             math.log10(self._viscosity100))
 
         return round(((10 ** N - 1) / 0.00715) + 100)
 
@@ -221,6 +253,12 @@ class Viscosity:
             temp_v_index = viscosity_index(viscosity_40, n)
             n += 0.01
         return round((n * 100 + 0.01) / 100, 2)
+
+    def _setter(self, name, value, attr, limit=0):
+        value = self._validator.validate_float(name, value)
+        lower_limit = limit
+        self._validator.validate_lower_limit(name, value, lower_limit)
+        setattr(self, attr, value)
 #
 #
 # class Bearing:
