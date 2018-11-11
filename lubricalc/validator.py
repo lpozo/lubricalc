@@ -28,30 +28,24 @@ class Validator:
     """Data validation class."""
 
     @staticmethod
-    def validate_float(value):
+    def validate_float(name, value):
         """Validate input value as float."""
         value = str(value).replace(',', '.').strip()
         try:
             value = float(value)
         except ValueError:
-            raise ValueError('Input value must be a valid number, '
-                             'not {v}'.format(v=value))
+            raise ValueError('{0}: Input value must be a valid number, '
+                             'not {1}'.format(name, value))
 
         if value == float('inf'):
-            raise ValueError('Input value must be a valid number, '
-                             'not infinite value')
+            raise ValueError('{0}: Input value must be a valid number, '
+                             'not infinite value'.format(name))
 
         return value
 
     @staticmethod
-    def validate_lower_limit(value, limit=0):
+    def validate_lower_limit(name, value, limit=0):
         """Validate value is greater than a given value (limit)."""
         if value <= limit:
-            raise ConceptError('Input value must be '
-                               'greater than {l}'.format_map(l=limit))
-
-    def validate_viscosity(self, *data):
-        for datum in data:
-            if datum < 2:
-                raise TooLowViscosityError('Input value is a concept error')
-
+            raise ConceptError('{0}: Input value must be '
+                               'greater than {1}'.format(name, limit))
