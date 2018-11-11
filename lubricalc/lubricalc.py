@@ -215,6 +215,20 @@ def viscosity_at_100(viscosity_40, v_index):
 class Bearing:
     """Class to define calculations related with bearings."""
 
+    def __init__(self):
+        self._outer_diameter = None
+        self._width = None
+
+    @property
+    def outer_diameter(self):
+        return self._outer_diameter
+
+    @outer_diameter.setter
+    def outer_diameter(self, value):
+        value = _validate_float(value)
+        if value <= 0:
+            raise ConceptError('Outer Diameter must be greater than zero')
+
     @classmethod
     def grease_amount(cls, outer_diameter, width):
         """Return the amount of grease needed for re-lubrication.

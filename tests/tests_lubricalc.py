@@ -25,7 +25,35 @@
 import nose
 
 from lubricalc.lubricalc import *
+from lubricalc.validator import Validator
 
+
+class TestValidator:
+    """Class to test Validator class."""
+    validator = Validator()
+
+    def test_validate_float(self):
+        assert self.validator.validate_float(1.02) == 1.02
+
+    def test_validate_float_string_float_input(self):
+        assert self.validator.validate_float('1.02') == 1.02
+
+    def test_validate_float_string_spaced_input(self):
+        assert self.validator.validate_float(' 1.02   ') == 1.02
+
+    def test_validate_float_string_coma_input(self):
+        assert self.validator.validate_float('1,02') == 1.02
+
+    @nose.tools.raises(ValueError)
+    def test_validate_float_inf_input(self):
+        self.validator.validate_float('inf')
+
+    @nose.tools.raises(ValueError)
+    def test_validate_float_string_input(self):
+        self.validator.validate_float('lolp')
+
+    def test_validate_float_int_input(self):
+        assert self.validator.validate_float(10) == 10.0
 
 class TestReynolds:
     """Class to test Reynolds."""
