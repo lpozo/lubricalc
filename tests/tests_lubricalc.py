@@ -27,6 +27,7 @@ import nose
 from lubricalc.exception import ConceptError
 from lubricalc.exception import InvertedViscosityError
 from lubricalc.bearing import Bearing
+from lubricalc.mixture import MotorOilMixture
 from lubricalc.reynolds import Reynolds
 from lubricalc.validator import Validator
 from lubricalc.viscosity import Viscosity
@@ -145,20 +146,27 @@ class TestViscosity:
 
     def test_viscosity_at_100(self):
         assert Viscosity().viscosity_at_100(112, v_index=140) == 15.12
-#
-#
-# class TestOilMixture:
-#     """Class to test OilMixture class."""
-#
-#     def test_oil_mix(self):
-#         mix = OilMixture()
-#         assert mix.oil_mix(20, 16, 45, '100') == 17.67
-#
-#     def test_mix_proportions(self):
-#         mix = OilMixture()
-#         assert mix.mix_proportions(460, 150, 680, '40') == (23.64, 76.36)
-#
-#
+
+
+class TestOilMixture:
+    """Class to test MotorOilMixture class."""
+
+    def test_oil_mix(self):
+        assert MotorOilMixture().oil_mix_viscosity(20, 16, 45, '100') == 17.67
+
+    def test_oil_mix_string_input(self):
+        assert MotorOilMixture().oil_mix_viscosity(
+            20.0, '16  ', '45', '100') == 17.67
+
+    def test_oil_mix_string_coma_input(self):
+        assert MotorOilMixture().oil_mix_viscosity(
+            20, ' 16,0', '45,0', '100') == 17.67
+
+    def test_mix_proportions(self):
+        assert MotorOilMixture().mix_proportions(
+            460, 150, 680, '40') == (23.64, 76.36)
+
+
 # class TestOilBlend:
 #     """Class to test OilBlend."""
 #
