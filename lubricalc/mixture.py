@@ -19,41 +19,94 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-"""This module provides OilMixture Class."""
+"""This module provides MotorOilMixture Class."""
 
 import math
 
+from .validator import Validator
 
-class OilMixture:
+
+class MotorOilMixture:
+    """Class to provide calculations on motor oil mixtures."""
 
     def __init__(self):
+        self._viscosity0 = None
+        self._viscosity1 = None
+        self._mix_viscosity = None
+        self._oil0_percent = None
+        self._validator = Validator()
         self.temp_map = {'100': 1.8,
                          '40': 4.1,
                          '-5': 1.9}
 
-    def oil_mix(self, KV1, KV2, oil1_percent, temperature):
+    def oil_mix_viscosity(self, viscosity0, viscosity1,
+                          oil0_percent, temperature):
         """Return the resulting viscosity of a mix of different bases."""
-        KV1 = float(KV1)
-        KV2 = float(KV2)
+        # Validate Data
+        self.viscosity0 = viscosity0
+        self.viscosity1 = viscosity1
+        self.oil0_percent = oil0_percent
+
         K = self.temp_map[temperature]
-        x1 = float(oil1_percent) / 100
-        mix_KV = (math.exp(math.log(KV2 + K) *
-                           math.exp(x1 * math.log(
-                               math.log(KV1 + K) /
-                               math.log(KV2 + K)))) - K)
+        x1 = self._oil0_percent / 100
+        a = math.log(self._viscosity1 + K)
+        b = math.log(self._viscosity0 + K)
+        mix_viscosity = (math.exp(a * math.exp(x1 * math.log(b / a))) - K)
 
-        return round(mix_KV, 2)
+        return round(mix_viscosity, 2)
 
-    def mix_proportions(self, KV, KV1, KV2, temperature):
+    def mix_proportions(self, viscosity0, viscosity1,
+                        mix_viscosity, temperature):
         """Return proportions to get a mixture of a given viscosity."""
-        KV = float(KV)
-        KV1 = float(KV1)
-        KV2 = float(KV2)
+        # Validate Data
+        self.viscosity0 = viscosity0
+        self.viscosity1 = viscosity1
+        self.mix_viscosity = mix_viscosity
+
         K = self.temp_map[temperature]
-        a = math.log(KV + K)
-        b = math.log(KV1 + K)
-        c = math.log(KV2 + K)
+        a = math.log(self._viscosity0 + K)
+        b = math.log(self._viscosity1 + K)
+        c = math.log(self.mix_viscosity + K)
         oil1_percent = 10000 * (math.log(a / c) / math.log(b / c)) / 100
         oil2_percent = 100 - oil1_percent
 
         return round(oil1_percent, 2), round(oil2_percent, 2)
+
+    @property
+    def viscosity0(self):
+        return self._viscosity0
+
+    @viscosity0.setter
+    def viscosity0(self, value):
+        self._setter('Fist Oil Viscosity', value, '_viscosity0', limit=1.99)
+
+    @property
+    def viscosity1(self):
+        return self._viscosity1
+
+    @viscosity1.setter
+    def viscosity1(self, value):
+        self._setter('Second Oil Viscosity', value, '_viscosity1', limit=1.99)
+
+    @property
+    def mix_viscosity(self):
+        return self._mix_viscosity
+
+    @mix_viscosity.setter
+    def mix_viscosity(self, value):
+        self._setter('Mixture Viscosity', value, '_mix_viscosity', limit=1.99)
+
+    @property
+    def oil0_percent(self):
+        return self._mix_viscosity
+
+    @oil0_percent.setter
+    def oil0_percent(self, value):
+        self._setter('First Oil Percent in Mix', value, '_oil0_percent',
+                     limit=1.99)
+
+    def _setter(self, name, value, attr, limit=0.0):
+        value = self._validator.validate_float(name, value)
+        lower_limit = limit
+        self._validator.validate_lower_limit(name, value, lower_limit)
+        setattr(self, attr, value)
