@@ -279,19 +279,19 @@ class BaseOilMixtureTab(BaseTab):
         return base_oil_proportions_group
 
     def on_calculate_viscosity_btn_clicked(self):
-        mix_KV = OilMixture().oil_mix(
-            KV1=self.KV1_line_edit.text(),
-            KV2=self.KV2_line_edit.text(),
-            oil1_percent=self.oil1_percent_line_edit.text(),
+        mix_KV = OilMixture().oil_mix_viscosity(
+            viscosity0=self.KV1_line_edit.text(),
+            viscosity1=self.KV2_line_edit.text(),
+            oil0_percent=self.oil1_percent_line_edit.text(),
             temperature=self.temperature_combo.currentText())
         self.mix_KV_label.setText('Mixture Kinematic Viscosity' + ' = ' +
                                   str(mix_KV) + ' ' + 'cSt')
 
     def on_calculate_proportions_btn_clicked(self):
         proportions = OilMixture().mix_proportions(
-            KV=self.KV_line_edit.text(),
-            KV1=self.KV1_line_edit.text(),
-            KV2=self.KV2_line_edit.text(),
+            viscosity0=self.KV_line_edit.text(),
+            viscosity1=self.KV1_line_edit.text(),
+            mix_viscosity=self.KV2_line_edit.text(),
             temperature=self.temperature_combo.currentText())
         self.oil1_label.setText('1st Oil Proportion in Mixture' + ' = ' +
                                 str(proportions[0]) + ' ' + '%')

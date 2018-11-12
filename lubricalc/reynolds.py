@@ -73,12 +73,6 @@ class Reynolds:
         if 2000.0 < reynolds < 4000.0:
             return 'mixed'
 
-    def _setter(self, name, value, attr, limit=0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)
-
     @property
     def velocity(self):
         return self._viscosity
@@ -102,3 +96,9 @@ class Reynolds:
     @length.setter
     def length(self, value):
         self._setter('Length', value, '_length')
+
+    def _setter(self, name, value, attr, limit=0.0):
+        value = self._validator.validate_float(name, value)
+        lower_limit = limit
+        self._validator.validate_lower_limit(name, value, lower_limit)
+        setattr(self, attr, value)
