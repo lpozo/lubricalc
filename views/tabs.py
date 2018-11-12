@@ -23,7 +23,7 @@
 
 from PyQt5 import QtGui, QtWidgets
 
-from lubricalc.lubricalc import *
+from lubricalc.reynolds import *
 
 
 class TabsCollection(QtWidgets.QTabWidget):
