@@ -19,14 +19,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-"""This module provides MotorOilMixture Class."""
+"""This module provides OilMixture Class."""
 
 import math
 
 from .validator import Validator
 
 
-class MotorOilMixture:
+class OilMixture:
     """Class to provide calculations on motor oil mixtures."""
 
     def __init__(self):
