@@ -20,12 +20,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-"""This module provides tests for cli.py."""
+"""This module provides tests for lubricalc package."""
 
 import nose
 
-from lubricalc.lubricalc import *
+from lubricalc.exception import ConceptError
+from lubricalc.exception import InvertedViscosityError
+from lubricalc.bearing import Bearing
+from lubricalc.reynolds import Reynolds
 from lubricalc.validator import Validator
+from lubricalc.viscosity import Viscosity
 
 
 class TestValidator:
@@ -136,11 +140,11 @@ class TestViscosity:
     def test_viscosity_index_input_lt_2(self):
         Viscosity().viscosity_index(1.5, 1)
 
-    # def test_viscosity_at_40(self):
-    #     assert Viscosity().viscosity_at_40(15, v_index=130) == 119.6
-    #
-    # def test_viscosity_at_100(self):
-    #     assert Viscosity().viscosity_at_100(112, v_index=140) == 15.12
+    def test_viscosity_at_40(self):
+        assert Viscosity().viscosity_at_40(15, v_index=130) == 119.6
+
+    def test_viscosity_at_100(self):
+        assert Viscosity().viscosity_at_100(112, v_index=140) == 15.12
 #
 #
 # class TestOilMixture:
@@ -170,27 +174,38 @@ class TestViscosity:
 #                                zinc=1.66) == 0.83
 #
 #
-# class TestBearing:
-#     """Class to test Bearing class."""
-#
-#     def test_grease_amount(self):
-#         """Test grease_amount()."""
-#         assert Bearing.grease_amount(25, 60) == 7.5
-#
-#     def test_lubrication_frequency(self):
-#         """Test lubrication_frequency()."""
-#         assert Bearing.lubrication_frequency(rpm=1750,
-#                                              inner_diameter=18,
-#                                              ft=0,
-#                                              fc=1,
-#                                              fh=2,
-#                                              fv=0,
-#                                              fp=0,
-#                                              fd=2) == 508
-#
-#     def test_speed_factor(self):
-#         """Test speed_factor()."""
-#         assert Bearing.speed_factor(58, 45, 3000) == 154500
+class TestBearing:
+    """Class to test Bearing class."""
+
+    def test_grease_amount(self):
+        """Test grease_amount()."""
+        assert Bearing().grease_amount(25, 60) == 7.5
+
+    def test_lubrication_frequency_float(self):
+        """Test lubrication_frequency()."""
+        assert Bearing().lubrication_frequency(rpm=1750.0,
+                                               inner_diameter=18.0,
+                                               ft=0,
+                                               fc=1,
+                                               fh=2,
+                                               fv=0,
+                                               fp=0,
+                                               fd=2) == 508
+
+    def test_lubrication_frequency_string(self):
+        """Test lubrication_frequency()."""
+        assert Bearing().lubrication_frequency(rpm='1750.0 ',
+                                               inner_diameter='18,0',
+                                               ft=0,
+                                               fc=1,
+                                               fh=2,
+                                               fv=0,
+                                               fp=0,
+                                               fd=2) == 508
+
+    def test_speed_factor(self):
+        """Test speed_factor()."""
+        assert Bearing().velocity_factor(58, 45, 3000) == 154500
 
 
 if __name__ == '__main__':
