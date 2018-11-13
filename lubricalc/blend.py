@@ -21,6 +21,8 @@
 
 """This module provides OilBlend Class."""
 
+from lubricalc.validator import Validator
+
 
 class OilBlend:
     """Class to calculate some parameters of a motor oil blend."""
@@ -38,22 +40,62 @@ class OilBlend:
                      'copper': 1.252}
 
     def __init__(self, additive_percent):
-        pass
+        self._validator = Validator()
+        self._additive_percent = None
+        self.additive_percent = additive_percent
+        self._additive_density = None
+        self._oil_density = None
+        self._metal_content = None
+
+    @property
+    def additive_percent(self):
+        return self._additive_percent
+
+    @additive_percent.setter
+    def additive_percent(self, value):
+        self._setter('Additive (% volume)', value, '_additive_percent')
+
+    @property
+    def additive_density(self):
+        return self._additive_density
+
+    @additive_density.setter
+    def additive_density(self, value):
+        self._setter('Additive Density', value, '_additive_density')
+
+    @property
+    def oil_density(self):
+        return self._oil_density
+
+    @oil_density.setter
+    def oil_density(self, value):
+        self._setter('Final Oil Density', value, '_oil_density')
+
+    @property
+    def metal_content(self):
+        return self._metal_content
+
+    @metal_content.setter
+    def metal_content(self, value):
+        self._setter('Metal Content', value, '_metal_content')
 
     @classmethod
     def metals(cls):
         return cls.contributions.keys()
 
-    def additive_percent_mass(self, additive_density, final_oil_density):
+    def additive_percent_mass(self, additive_density, oil_density):
         """Return the % by mass of Additive in a motor oil.
 
                              Additive Density (kg/L) * Additive (% volume)
         Additive (% mass) = ----------------------------------------------
                                 Density of Finished Oil (kg/L)
         """
+        # Data Validation
+        self.additive_density = additive_density
+        self.oil_density = oil_density
 
-        return round((additive_density * self.additive_percent) /
-                     final_oil_density, 2)
+        return round((self._additive_density * self._additive_percent) /
+                     self._oil_density, 2)
 
     def _sulfated_ash(self, metal, metal_content):
         """Return the % of sulfated ash (SA) of a motor oil.
@@ -62,12 +104,21 @@ class OilBlend:
         SA = -------------------------------------------------------------------------------
                                                 100
         """
-        SA = round(metal_content * self.contributions[metal.lower()] *
-                   self.additive_percent / 100, 3)
+        # Data Validation
+        self.metal_content = metal_content
 
-        return SA
+        ash = (self._metal_content * self.contributions[metal.lower()] *
+               self._additive_percent / 100)
+
+        return round(ash, 3)
 
     def total_ash(self, **metal_contents):
         total_ash = sum(self._sulfated_ash(metal, content) for
                         metal, content in metal_contents.items())
         return round(total_ash, 2)
+
+    def _setter(self, name, value, attr, limit=0):
+        value = self._validator.validate_float(name, value)
+        lower_limit = limit
+        self._validator.validate_lower_limit(name, value, lower_limit)
+        setattr(self, attr, value)
