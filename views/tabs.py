@@ -23,7 +23,10 @@
 
 from PyQt5 import QtGui, QtWidgets
 
-from lubricalc.reynolds import *
+from lubricalc.blend import OilBlend
+from lubricalc.exception import *
+from lubricalc.mixture import OilMixture
+from lubricalc.viscosity import Viscosity
 
 
 class TabsCollection(QtWidgets.QTabWidget):
@@ -87,7 +90,7 @@ class ViscosityTab(BaseTab):
                             self.viscosity0_100_edit)
         index_layout.addRow(self.viscosity_index_btn, self.index_label)
         index_gpb.setLayout(index_layout)
-        self.index_label.setToolTip(viscosity_index.__doc__)
+        self.index_label.setToolTip(Viscosity().viscosity_index.__doc__)
         return index_gpb
 
     def _create_viscosity_at_40_group(self):
@@ -128,8 +131,9 @@ class ViscosityTab(BaseTab):
 
     def on_viscosity_index_button_clicked(self):
         try:
-            vi = viscosity_index(viscosity_40=self.viscosity0_40_edit.text(),
-                                 viscosity_100=self.viscosity0_100_edit.text())
+            vi = Viscosity().viscosity_index(
+                viscosity40=self.viscosity0_40_edit.text(),
+                viscosity100=self.viscosity0_100_edit.text())
             self.index_label.setText('Viscosity Index = ' + str(vi))
         except ValueError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
@@ -154,8 +158,8 @@ class ViscosityTab(BaseTab):
 
     def on_viscosity_at_40_button_clicked(self):
         try:
-            result = viscosity_at_40(
-                viscosity_100=self.viscosity1_100_edit.text(),
+            result = Viscosity().viscosity_at_40(
+                viscosity100=self.viscosity1_100_edit.text(),
                 v_index=self.index0_edit.text())
             self.viscosity_40_label.setText('Kinematic Viscosity at 40°C' +
                                             ' = ' + str(result) + ' ' + 'cSt')
@@ -175,8 +179,8 @@ class ViscosityTab(BaseTab):
 
     def on_calculate_viscosity_at_100_btn_clicked(self):
         try:
-            result = viscosity_at_100(
-                viscosity_40=self.viscosity1_40_edit.text(),
+            result = Viscosity().viscosity_at_100(
+                viscosity40=self.viscosity1_40_edit.text(),
                 v_index=self.index1_edit.text())
             self.viscosity_100_label.setText('Kinematic Viscosity at 100°C' +
                                              ' = ' + str(result) + ' ' + 'cSt')
@@ -202,9 +206,9 @@ class BaseOilMixtureTab(BaseTab):
         super().__init__()
         self.text = 'Base Oil Mixture'
         self.setup_ui()
-        self.calculate_viscosity_button.clicked.connect(
-            self.on_calculate_viscosity_btn_clicked)
-        self.calculate_proportions_button.clicked.connect(
+        self.mix_viscosity_btn.clicked.connect(
+            self.on_mix_viscosity_button_clicked)
+        self.mix_proportions_btn.clicked.connect(
             self.on_calculate_proportions_btn_clicked)
 
     def setup_ui(self):
@@ -215,84 +219,74 @@ class BaseOilMixtureTab(BaseTab):
         self.setLayout(general_layout)
 
     def _create_base_oil_mixture_group(self):
-        base_oil_mixture_group = QtWidgets.QGroupBox(
+        oil_mixture_gpb = QtWidgets.QGroupBox('Mixture Kinematic Viscosity')
+        oil_mixture_layout = QtWidgets.QFormLayout()
+        self.viscosity01_edit = QtWidgets.QLineEdit()
+        self.viscosity02_edit = QtWidgets.QLineEdit()
+        self.oil1_percent_edit = QtWidgets.QLineEdit()
+        self.temperature0_combo = QtWidgets.QComboBox()
+        self.temperature0_combo.addItems(('100', '40', '-5'))
+        self.mix_viscosity_label = QtWidgets.QLabel(
             'Mixture Kinematic Viscosity')
-        base_oil_mixture_layout = QtWidgets.QFormLayout()
-        self.KV1_line_edit = QtWidgets.QLineEdit()
-        self.KV2_line_edit = QtWidgets.QLineEdit()
-        self.oil1_percent_line_edit = QtWidgets.QLineEdit()
-        self.temperature_combo = QtWidgets.QComboBox()
-        self.temperature_combo.addItems(('100', '40', '-5'))
-        self.mix_KV_label = QtWidgets.QLabel('Mixture Kinematic Viscosity')
-        self.mix_KV_label.setFont(self.font)
-        self.calculate_viscosity_button = QtWidgets.QPushButton('Calculate')
-        base_oil_mixture_layout.addRow(
-            '1st Base Oil Kinematic Viscosity (cSt):',
-            self.KV1_line_edit)
-        base_oil_mixture_layout.addRow(
-            '2nd Base Oil Kinematic Viscosity (cSt):',
-            self.KV2_line_edit)
-        base_oil_mixture_layout.addRow(
-            '1st Base Oil Proportion in Mixture (%):',
-            self.oil1_percent_line_edit)
-        base_oil_mixture_layout.addRow('Temperature (°C):',
-                                       self.temperature_combo)
-        base_oil_mixture_layout.addRow(self.calculate_viscosity_button,
-                                       self.mix_KV_label)
-        base_oil_mixture_group.setLayout(base_oil_mixture_layout)
+        self.mix_viscosity_label.setFont(self.font)
+        self.mix_viscosity_btn = QtWidgets.QPushButton('Calculate')
+        oil_mixture_layout.addRow('1st Base Oil Kinematic Viscosity (cSt):',
+                                  self.viscosity01_edit)
+        oil_mixture_layout.addRow('2nd Base Oil Kinematic Viscosity (cSt):',
+                                  self.viscosity02_edit)
+        oil_mixture_layout.addRow('1st Base Oil Proportion in Mixture (%):',
+                                  self.oil1_percent_edit)
+        oil_mixture_layout.addRow('Temperature (°C):', self.temperature0_combo)
+        oil_mixture_layout.addRow(self.mix_viscosity_btn,
+                                  self.mix_viscosity_label)
+        oil_mixture_gpb.setLayout(oil_mixture_layout)
 
-        return base_oil_mixture_group
+        return oil_mixture_gpb
 
     def _create_base_oil_proportions_group(self):
-        base_oil_proportions_group = QtWidgets.QGroupBox('Mixture Proportions')
-        base_oil_proportions_layout = QtWidgets.QFormLayout()
-        self.KV1_line_edit = QtWidgets.QLineEdit()
-        self.KV2_line_edit = QtWidgets.QLineEdit()
-        self.KV_line_edit = QtWidgets.QLineEdit()
-        self.temperature_combo = QtWidgets.QComboBox()
-        self.temperature_combo.addItems(('100', '40', '-5'))
-        self.oil1_line_edit = QtWidgets.QLineEdit()
-        self.oil2_line_edit = QtWidgets.QLineEdit()
+        proportions_gpb = QtWidgets.QGroupBox('Mixture Proportions')
+        proportions_layout = QtWidgets.QFormLayout()
+        self.viscosity11_edit = QtWidgets.QLineEdit()
+        self.viscosity12_edit = QtWidgets.QLineEdit()
+        self.mix_viscosity_edit = QtWidgets.QLineEdit()
+        self.temperature1_combo = QtWidgets.QComboBox()
+        self.temperature1_combo.addItems(('100', '40', '-5'))
+        self.oil1_edit = QtWidgets.QLineEdit()
+        self.oil2_edit = QtWidgets.QLineEdit()
         self.oil1_label = QtWidgets.QLabel('1st Oil Proportion in Mixture')
         self.oil2_label = QtWidgets.QLabel('2nd Oil Proportion in Mixture')
         self.oil1_label.setFont(self.font)
         self.oil2_label.setFont(self.font)
-        self.calculate_proportions_button = QtWidgets.QPushButton('Calculate')
-        base_oil_proportions_layout.addRow(
-            '1st Base Oil Kinematic Viscosity (cSt):',
-            self.KV1_line_edit)
-        base_oil_proportions_layout.addRow(
-            '2nd Base Oil Kinematic Viscosity (cSt):',
-            self.KV2_line_edit)
-        base_oil_proportions_layout.addRow(
-            'Mixture Kinematic Viscosity (cSt):',
-            self.KV_line_edit)
-        base_oil_proportions_layout.addRow('Temperature (°C):',
-                                           self.temperature_combo)
+        self.mix_proportions_btn = QtWidgets.QPushButton('Calculate')
+        proportions_layout.addRow('1st Base Oil Kinematic Viscosity (cSt):',
+                                  self.viscosity11_edit)
+        proportions_layout.addRow('2nd Base Oil Kinematic Viscosity (cSt):',
+                                  self.viscosity12_edit)
+        proportions_layout.addRow('Mixture Kinematic Viscosity (cSt):',
+                                  self.mix_viscosity_edit)
+        proportions_layout.addRow('Temperature (°C):', self.temperature1_combo)
+        proportions_layout.addRow(self.mix_proportions_btn, self.oil1_label)
+        proportions_layout.addRow(QtWidgets.QWidget(), self.oil2_label)
+        proportions_gpb.setLayout(proportions_layout)
 
-        base_oil_proportions_layout.addRow(self.calculate_proportions_button,
-                                           self.oil1_label)
-        base_oil_proportions_layout.addRow(QtWidgets.QWidget(),
-                                           self.oil2_label)
-        base_oil_proportions_group.setLayout(base_oil_proportions_layout)
+        return proportions_gpb
 
-        return base_oil_proportions_group
-
-    def on_calculate_viscosity_btn_clicked(self):
-        mix_KV = OilMixture().oil_mix_viscosity(
-            viscosity0=self.KV1_line_edit.text(),
-            viscosity1=self.KV2_line_edit.text(),
-            oil0_percent=self.oil1_percent_line_edit.text(),
-            temperature=self.temperature_combo.currentText())
-        self.mix_KV_label.setText('Mixture Kinematic Viscosity' + ' = ' +
-                                  str(mix_KV) + ' ' + 'cSt')
+    def on_mix_viscosity_button_clicked(self):
+        mix_viscosity = OilMixture().oil_mix_viscosity(
+            viscosity0=self.viscosity01_edit.text(),
+            viscosity1=self.viscosity02_edit.text(),
+            oil0_percent=self.oil1_percent_edit.text(),
+            temperature=self.temperature0_combo.currentText())
+        self.mix_viscosity_label.setText('Mixture Kinematic Viscosity' +
+                                         ' = ' + str(mix_viscosity) + ' ' +
+                                         'cSt')
 
     def on_calculate_proportions_btn_clicked(self):
         proportions = OilMixture().mix_proportions(
-            viscosity0=self.KV_line_edit.text(),
-            viscosity1=self.KV1_line_edit.text(),
-            mix_viscosity=self.KV2_line_edit.text(),
-            temperature=self.temperature_combo.currentText())
+            viscosity0=self.viscosity11_edit.text(),
+            viscosity1=self.viscosity12_edit.text(),
+            mix_viscosity=self.mix_viscosity_edit.text(),
+            temperature=self.temperature1_combo.currentText())
         self.oil1_label.setText('1st Oil Proportion in Mixture' + ' = ' +
                                 str(proportions[0]) + ' ' + '%')
         self.oil2_label.setText('2nd Oil Proportion in Mixture' + ' = ' +
@@ -360,7 +354,7 @@ class SulfatedAshTab(BaseTab):
         blend = OilBlend(additive_percent=self.additive_percent0_edit.text())
         additive = blend.additive_percent_mass(
             additive_density=self.additive_density_edit.text(),
-            final_oil_density=self.oil_density_edit.text())
+            oil_density=self.oil_density_edit.text())
         self.additive_label.setText('Additive' + ' = ' +
                                     str(additive) + ' ' + '% by mass')
 
