@@ -30,5 +30,5 @@ class InvertedViscosityError(ConceptError):
     pass
 
 
-class TooLowViscosityError(ConceptError):
+class NotInIntervalViscosityError(ConceptError):
     pass
