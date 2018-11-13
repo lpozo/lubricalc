@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# File name: tests.py
+# File name: tests_libricalc.py
 #
 # Copyright (C) 2018 Leodanis Pozo Ramos <lpozor78@gmail.com>
 #
@@ -26,8 +26,10 @@ import nose
 
 from lubricalc.exception import ConceptError
 from lubricalc.exception import InvertedViscosityError
+from lubricalc.exception import NotInIntervalViscosityError
 from lubricalc.bearing import Bearing
-from lubricalc.mixture import MotorOilMixture
+from lubricalc.blend import OilBlend
+from lubricalc.mixture import OilMixture
 from lubricalc.reynolds import Reynolds
 from lubricalc.validator import Validator
 from lubricalc.viscosity import Viscosity
@@ -149,39 +151,62 @@ class TestViscosity:
 
 
 class TestOilMixture:
-    """Class to test MotorOilMixture class."""
+    """Class to test OilMixture class."""
 
-    def test_oil_mix(self):
-        assert MotorOilMixture().oil_mix_viscosity(20, 16, 45, '100') == 17.67
+    def test_oil_mix_viscosity(self):
+        assert OilMixture().oil_mix_viscosity(20, 16, 45, '100') == 17.67
 
-    def test_oil_mix_string_input(self):
-        assert MotorOilMixture().oil_mix_viscosity(
+    def test_oil_mix_viscosity_string_input(self):
+        assert OilMixture().oil_mix_viscosity(
             20.0, '16  ', '45', '100') == 17.67
 
-    def test_oil_mix_string_coma_input(self):
-        assert MotorOilMixture().oil_mix_viscosity(
+    def test_oil_mix_viscosity_string_coma_input(self):
+        assert OilMixture().oil_mix_viscosity(
             20, ' 16,0', '45,0', '100') == 17.67
 
     def test_mix_proportions(self):
-        assert MotorOilMixture().mix_proportions(
-            460, 150, 680, '40') == (23.64, 76.36)
+        assert OilMixture().mix_proportions(
+            680, 220, 460, '40') == (67.32, 32.68)
+
+    def test_mix_proportions_string_input(self):
+        assert OilMixture().mix_proportions(
+            '680,0', '220 ', '460', '40') == (67.32, 32.68)
+
+    @nose.tools.raises(ConceptError)
+    def test_mix_proportions_wrong_mix_viscosity(self):
+        OilMixture().mix_proportions(320, 680, '220', '40')
+
+    @nose.tools.raises(NotInIntervalViscosityError)
+    def test_mix_proportions_wrong_mix_viscosity1(self):
+        OilMixture().mix_proportions(320, 680, '1000', '40')
 
 
-# class TestOilBlend:
-#     """Class to test OilBlend."""
-#
-#     def test_additive_percent_mass(self):
-#         blend = OilBlend(additive_percent=8.0)
-#         assert blend.additive_percent_mass(additive_density=0.959,
-#                                            final_oil_density=0.881) == 8.71
-#
-#     def test_total_ash(self):
-#         blend = OilBlend(additive_percent=8.5)
-#         assert blend.total_ash(Calcium=0.47,
-#                                Magnesium=1.15,
-#                                zinc=1.66) == 0.83
-#
-#
+class TestOilBlend:
+    """Class to test OilBlend."""
+
+    def test_additive_percent_mass(self):
+        blend = OilBlend(additive_percent=8.0)
+        assert blend.additive_percent_mass(additive_density=.959,
+                                           oil_density=0.881) == 8.71
+
+    def test_additive_percent_mass_string_input(self):
+        blend = OilBlend(additive_percent='8.0')
+        assert blend.additive_percent_mass(additive_density='0,959',
+                                           oil_density=' 0.881') == 8.71
+
+    def test_total_ash(self):
+        blend = OilBlend(additive_percent=8.5)
+        assert blend.total_ash(Calcium=0.47,
+                               Magnesium=1.15,
+                               zinc=1.66) == 0.83
+
+    def test_total_ash_string_input(self):
+        blend = OilBlend(additive_percent='8.5 ')
+        assert blend.total_ash(Calcium='.47',
+                               Magnesium=' 1,15',
+                               zinc=1.66) == 0.83
+
+
 class TestBearing:
     """Class to test Bearing class."""
 
