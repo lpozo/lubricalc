@@ -25,6 +25,7 @@ from PyQt5 import QtGui, QtWidgets
 
 from lubricalc.blend import OilBlend
 from lubricalc.exception import *
+from lubricalc.bearing import Bearing
 from lubricalc.mixture import OilMixture
 from lubricalc.viscosity import Viscosity
 
@@ -458,7 +459,7 @@ class BearingTab(BaseTab):
         return frequency_group
 
     def on_grease_amount_btn_clicked(self):
-        grease_amount = Bearing.grease_amount(
+        grease_amount = Bearing().grease_amount(
             outer_diameter=self.D_line_edit.text(),
             width=self.B_line_edit.text())
         self.grease_amount_label.setText('Amount of Grease for Re-lubrication'
@@ -466,7 +467,7 @@ class BearingTab(BaseTab):
                                          + ' ' + 'g')
 
     def on_frequency_btn_clicked(self):
-        frequency = Bearing.lubrication_frequency(
+        frequency = Bearing().lubrication_frequency(
             rpm=self.rpm1_line_edit.text(),
             inner_diameter=self.d1_line_edit.text(),
             ft=self.Ft.currentIndex(),
