@@ -31,7 +31,7 @@ Clone the repo and make a pull request!
 
 ## License
 
-Lubircalc is licensed under GNU GNU General Public License, Version 2.
+Lubircalc is licensed under GNU General Public License, Version 2, June 1991.
 
 ## Authors
 
