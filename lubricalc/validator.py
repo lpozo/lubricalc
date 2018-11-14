@@ -49,3 +49,12 @@ class Validator:
         if value <= limit:
             raise ConceptError('{0}: Input value must be '
                                'greater than {1}'.format(name, limit))
+
+
+def validate(obj, name, value, attr, limit=0):
+    """Validate and set attributes of an object."""
+    validator = Validator()
+    value = validator.validate_float(name, value)
+    lower_limit = limit
+    validator.validate_lower_limit(name, value, lower_limit)
+    setattr(obj, attr, value)

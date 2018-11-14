@@ -23,7 +23,7 @@
 
 import math
 
-from .validator import Validator
+from .validator import validate
 
 
 class Bearing:
@@ -34,7 +34,6 @@ class Bearing:
         self._inner_diameter = None
         self._width = None
         self._rpm = None
-        self._validator = Validator()
 
     def grease_amount(self, outer_diameter, width):
         """Return the amount of grease needed for re-lubrication.
@@ -145,7 +144,7 @@ class Bearing:
 
     @outer_diameter.setter
     def outer_diameter(self, value):
-        self._setter('Outer Diameter', value, '_outer_diameter')
+        validate(self, 'Outer Diameter', value, '_outer_diameter')
 
     @property
     def inner_diameter(self):
@@ -153,7 +152,7 @@ class Bearing:
 
     @inner_diameter.setter
     def inner_diameter(self, value):
-        self._setter('Inner Diameter', value, '_inner_diameter')
+        validate(self, 'Inner Diameter', value, '_inner_diameter')
 
     @property
     def width(self):
@@ -161,7 +160,7 @@ class Bearing:
 
     @width.setter
     def width(self, value):
-        self._setter('Width', value, '_width')
+        validate(self, 'Width', value, '_width')
 
     @property
     def rpm(self):
@@ -169,10 +168,4 @@ class Bearing:
 
     @rpm.setter
     def rpm(self, value):
-        self._setter('Velocity', value, '_rpm')
-
-    def _setter(self, name, value, attr, limit=0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)
+        validate(self, 'Velocity', value, '_rpm')

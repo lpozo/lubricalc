@@ -21,7 +21,7 @@
 
 """This module provides OilBlend Class."""
 
-from lubricalc.validator import Validator
+from lubricalc.validator import validate
 
 
 class OilBlend:
@@ -40,7 +40,6 @@ class OilBlend:
                      'copper': 1.252}
 
     def __init__(self, additive_percent):
-        self._validator = Validator()
         self._additive_percent = None
         self.additive_percent = additive_percent
         self._additive_density = None
@@ -53,7 +52,7 @@ class OilBlend:
 
     @additive_percent.setter
     def additive_percent(self, value):
-        self._setter('Additive (% volume)', value, '_additive_percent')
+        validate(self, 'Additive (% volume)', value, '_additive_percent')
 
     @property
     def additive_density(self):
@@ -61,7 +60,7 @@ class OilBlend:
 
     @additive_density.setter
     def additive_density(self, value):
-        self._setter('Additive Density', value, '_additive_density')
+        validate(self, 'Additive Density', value, '_additive_density')
 
     @property
     def oil_density(self):
@@ -69,7 +68,7 @@ class OilBlend:
 
     @oil_density.setter
     def oil_density(self, value):
-        self._setter('Final Oil Density', value, '_oil_density')
+        validate(self, 'Final Oil Density', value, '_oil_density')
 
     @property
     def metal_content(self):
@@ -77,7 +76,10 @@ class OilBlend:
 
     @metal_content.setter
     def metal_content(self, value):
-        self._setter('Metal Content', value, '_metal_content')
+        if value == '':
+            self._metal_content = 0.0
+        else:
+            validate(self, 'Metal Content', value, '_metal_content', limit=-1)
 
     @classmethod
     def metals(cls):
@@ -116,9 +118,3 @@ class OilBlend:
         total_ash = sum(self._sulfated_ash(metal, content) for
                         metal, content in metal_contents.items())
         return round(total_ash, 2)
-
-    def _setter(self, name, value, attr, limit=0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)

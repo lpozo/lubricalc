@@ -24,7 +24,7 @@
 import math
 
 from .exception import InvertedViscosityError
-from .validator import Validator
+from .validator import validate
 
 
 class Viscosity:
@@ -34,7 +34,6 @@ class Viscosity:
         self._viscosity40 = None
         self._viscosity100 = None
         self._v_index = None
-        self._validator = Validator()
 
     def viscosity_index(self, viscosity40, viscosity100):
         """Calculate the Viscosity Index (VI) by ASTM-D2270.
@@ -154,7 +153,7 @@ class Viscosity:
 
     @viscosity40.setter
     def viscosity40(self, value):
-        self._setter('Viscosity at 40°C', value, '_viscosity40', limit=1.99)
+        validate(self, 'Viscosity at 40°C', value, '_viscosity40', limit=1.99)
 
     @property
     def viscosity100(self):
@@ -162,7 +161,7 @@ class Viscosity:
 
     @viscosity100.setter
     def viscosity100(self, value):
-        self._setter('Viscosity at 100°C', value, '_viscosity100', limit=1.99)
+        validate(self, 'Viscosity at 100°C', value, '_viscosity100', limit=1.99)
 
     @property
     def v_index(self):
@@ -170,10 +169,4 @@ class Viscosity:
 
     @v_index.setter
     def v_index(self, value):
-        self._setter('Viscosity Index', value, '_v_index')
-
-    def _setter(self, name, value, attr, limit=0.0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)
+        validate(self, 'Viscosity Index', value, '_v_index')

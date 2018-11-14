@@ -24,7 +24,7 @@
 import math
 
 from .exception import NotInIntervalViscosityError
-from .validator import Validator
+from .validator import validate
 
 
 class OilMixture:
@@ -35,7 +35,6 @@ class OilMixture:
         self._viscosity1 = None
         self._mix_viscosity = None
         self._oil0_percent = None
-        self._validator = Validator()
         self.temp_map = {'100': 1.8,
                          '40': 4.1,
                          '-5': 1.9}
@@ -84,7 +83,7 @@ class OilMixture:
 
     @viscosity0.setter
     def viscosity0(self, value):
-        self._setter('Fist Oil Viscosity', value, '_viscosity0', limit=1.99)
+        validate(self, 'Fist Oil Viscosity', value, '_viscosity0', limit=1.99)
 
     @property
     def viscosity1(self):
@@ -92,7 +91,7 @@ class OilMixture:
 
     @viscosity1.setter
     def viscosity1(self, value):
-        self._setter('Second Oil Viscosity', value, '_viscosity1', limit=1.99)
+        validate(self, 'Second Oil Viscosity', value, '_viscosity1', limit=1.99)
 
     @property
     def mix_viscosity(self):
@@ -100,7 +99,7 @@ class OilMixture:
 
     @mix_viscosity.setter
     def mix_viscosity(self, value):
-        self._setter('Mixture Viscosity', value, '_mix_viscosity', limit=1.99)
+        validate(self, 'Mixture Viscosity', value, '_mix_viscosity', limit=1.99)
 
     @property
     def oil0_percent(self):
@@ -108,11 +107,5 @@ class OilMixture:
 
     @oil0_percent.setter
     def oil0_percent(self, value):
-        self._setter('First Oil Percent in Mix', value, '_oil0_percent',
-                     limit=1.99)
-
-    def _setter(self, name, value, attr, limit=0.0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)
+        validate(self, 'First Oil Percent in Mix', value, '_oil0_percent',
+                 limit=1.99)

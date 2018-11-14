@@ -20,7 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from lubricalc.validator import Validator
+from lubricalc.validator import validate
 
 
 class Reynolds:
@@ -30,7 +30,6 @@ class Reynolds:
         self._velocity = None
         self._viscosity = None
         self._length = None
-        self._validator = Validator()
 
     def reynolds_number(self, velocity, length, viscosity):
         """Calculate Reynolds number (Re).
@@ -79,7 +78,7 @@ class Reynolds:
 
     @velocity.setter
     def velocity(self, value):
-        self._setter('Velocity', value, '_velocity')
+        validate(self, 'Velocity', value, '_velocity')
 
     @property
     def viscosity(self):
@@ -87,7 +86,7 @@ class Reynolds:
 
     @viscosity.setter
     def viscosity(self, value):
-        self._setter('Viscosity', value, '_viscosity', limit=1.99)
+        validate(self, 'Viscosity', value, '_viscosity', limit=1.99)
 
     @property
     def length(self):
@@ -95,10 +94,4 @@ class Reynolds:
 
     @length.setter
     def length(self, value):
-        self._setter('Length', value, '_length')
-
-    def _setter(self, name, value, attr, limit=0.0):
-        value = self._validator.validate_float(name, value)
-        lower_limit = limit
-        self._validator.validate_lower_limit(name, value, lower_limit)
-        setattr(self, attr, value)
+        validate(self, 'Length', value, '_length')

@@ -149,7 +149,7 @@ class ViscosityTab(BaseTab):
                                   ' greater than Viscosity at 100°C',
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
-        except TooLowViscosityError:
+        except ConceptError:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
                                   'Viscosity must be greater than 2',
@@ -362,7 +362,7 @@ class SulfatedAshTab(BaseTab):
         blend = OilBlend(additive_percent=self.additive_percent1_edit.text())
         metal_contents = {}
         for metal in OilBlend.metals():
-            metal_contents[metal] = float(self.__dict__[metal].text())
+            metal_contents[metal] = self.__dict__[metal].text()
 
         total_ash = blend.total_ash(**metal_contents)
         self.total_ash_label.setText('Total Ash' + ' = ' + str(total_ash) +
