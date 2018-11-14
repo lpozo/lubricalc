@@ -34,12 +34,14 @@ class Validator:
         try:
             value = float(value)
         except ValueError:
+            if value == '':
+                value = 'null'
             raise ValueError('{0}: Input value must be a valid number, '
-                             'not {1}'.format(name, value))
+                             'not: {1}'.format(name, value))
 
-        if value == float('inf'):
+        if value in (float('inf'), float('-inf')):
             raise ValueError('{0}: Input value must be a valid number, '
-                             'not infinite value'.format(name))
+                             'not: infinite'.format(name))
 
         return value
 
@@ -48,7 +50,8 @@ class Validator:
         """Validate value is greater than a given value (limit)."""
         if value <= limit:
             raise ConceptError('{0}: Input value must be '
-                               'greater than {1}'.format(name, limit))
+                               'greater than or equal to {1}'.format(
+                                    name, round(limit)))
 
 
 def validate(obj, name, value, attr, limit=0):

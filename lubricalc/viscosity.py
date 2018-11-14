@@ -24,6 +24,7 @@
 import math
 
 from .exception import InvertedViscosityError
+from .exception import ConceptError
 from .validator import validate
 
 
@@ -114,12 +115,19 @@ class Viscosity:
         H = d * self._viscosity100 ** 2 + e * self._viscosity100 + f
 
         if self._viscosity40 >= H:
-            return round(((L - self._viscosity40) / (L - H)) * 100)
+            v_index = round(((L - self._viscosity40) / (L - H)) * 100)
+            self._validate_viscosity_index(v_index)
+            return v_index
 
         N = ((math.log10(H) - math.log10(self._viscosity40)) /
              math.log10(self._viscosity100))
+        v_index = round(((10 ** N - 1) / 0.00715) + 100)
+        self._validate_viscosity_index(v_index)
+        return v_index
 
-        return round(((10 ** N - 1) / 0.00715) + 100)
+    def _validate_viscosity_index(self, v_index):
+        if v_index < 0 or v_index > 300:
+            raise ConceptError('Viscosity Index not defined')
 
     def viscosity_at_40(self, viscosity100, v_index):
         """Calculate the Kinematic Viscosity at 40°C."""
