@@ -56,6 +56,14 @@ class TestValidator:
         self.validator.validate_float('Variable', 'inf')
 
     @nose.tools.raises(ValueError)
+    def test_validate_float_negative_inf_input(self):
+        self.validator.validate_float('Variable', '-inf')
+
+    @nose.tools.raises(ValueError)
+    def test_validate_float_empty_string_input(self):
+        self.validator.validate_float('Variable', '')
+
+    @nose.tools.raises(ValueError)
     def test_validate_float_string_input(self):
         self.validator.validate_float('Variable', 'string')
 
