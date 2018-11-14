@@ -40,7 +40,11 @@ if __name__ == '__main__':
           url='https://github.com/lpozo/lubricalc',
           license='GNU General Public License, Version 2, June 1991',
           platforms=['linux', 'win32'],
-          scripts=['lubricalc'],
-          py_modules=[''],
-          packages=[],
-         )
+          scripts=['bin/lubricalc'],
+          py_modules=['main', 'controller'],
+          packages=['lubricalc'],
+          data_files=[('share/applications/Lubricalc',
+                       ['AUTHORS', 'LICENSE',
+                        'screenshot.png, requirements.txt'])],
+          keywords='machinery lubrication, oil, grease, lubrication engineering',
+    )
