@@ -26,7 +26,7 @@ import nose
 
 from lubricalc.exception import ConceptError
 from lubricalc.exception import InvertedViscosityError
-from lubricalc.exception import NotInIntervalViscosityError
+from lubricalc.exception import ViscosityIntervalError
 from lubricalc.bearing import Bearing
 from lubricalc.blend import OilBlend
 from lubricalc.mixture import OilMixture
@@ -176,7 +176,7 @@ class TestOilMixture:
     def test_mix_proportions_wrong_mix_viscosity(self):
         OilMixture().mix_proportions(320, 680, '220', '40')
 
-    @nose.tools.raises(NotInIntervalViscosityError)
+    @nose.tools.raises(ViscosityIntervalError)
     def test_mix_proportions_wrong_mix_viscosity1(self):
         OilMixture().mix_proportions(320, 680, '1000', '40')
 

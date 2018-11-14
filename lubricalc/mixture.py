@@ -23,7 +23,7 @@
 
 import math
 
-from .exception import NotInIntervalViscosityError
+from .exception import ViscosityIntervalError
 from .validator import validate
 
 
@@ -65,7 +65,7 @@ class OilMixture:
 
         if not(self._viscosity0 < self._mix_viscosity < self._viscosity1 or
                 self._viscosity1 < self._mix_viscosity < self._viscosity0):
-            raise NotInIntervalViscosityError('Mixture viscosity must be in '
+            raise ViscosityIntervalError('Mixture viscosity must be in '
                                               'between viscosity interval')
 
         K = self.temp_map[temperature]
