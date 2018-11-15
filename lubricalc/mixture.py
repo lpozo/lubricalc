@@ -28,7 +28,7 @@ from .validator import validate
 
 
 class OilMixture:
-    """Class to provide calculations on motor oil mixtures."""
+    """Class to provide calculations on oil mixtures."""
 
     def __init__(self):
         self._viscosity0 = None
@@ -65,8 +65,8 @@ class OilMixture:
 
         if not(self._viscosity0 < self._mix_viscosity < self._viscosity1 or
                 self._viscosity1 < self._mix_viscosity < self._viscosity0):
-            raise ViscosityIntervalError('Mixture viscosity must be in '
-                                              'between viscosity interval')
+            raise ViscosityIntervalError('Mixture viscosity must be inside '
+                                         'the viscosity interval')
 
         K = self.temp_map[temperature]
         a = math.log(self.mix_viscosity + K)
@@ -83,7 +83,7 @@ class OilMixture:
 
     @viscosity0.setter
     def viscosity0(self, value):
-        validate(self, 'Fist Oil Viscosity', value, '_viscosity0', limit=1.99)
+        validate(self, '1st. Oil Viscosity', value, '_viscosity0', limit=1.99)
 
     @property
     def viscosity1(self):
@@ -91,7 +91,7 @@ class OilMixture:
 
     @viscosity1.setter
     def viscosity1(self, value):
-        validate(self, 'Second Oil Viscosity', value, '_viscosity1', limit=1.99)
+        validate(self, '2nd. Oil Viscosity', value, '_viscosity1', limit=1.99)
 
     @property
     def mix_viscosity(self):
