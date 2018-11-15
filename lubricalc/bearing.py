@@ -23,6 +23,7 @@
 
 import math
 
+from .exception import ConceptError
 from .validator import validate
 
 
@@ -96,8 +97,8 @@ class Bearing:
         d: Inner diameter of the bearing (mm)
         """
         # Validate Data
-        self.inner_diameter = inner_diameter
         self.rpm = rpm
+        self.inner_diameter = inner_diameter
 
         factors_map = {'ft': (1.0, 0.5, 0.2, 0.1),
                        'fc': (1.0, 0.7, 0.4, 0.2),
@@ -132,11 +133,17 @@ class Bearing:
         # Validate Data
         self.outer_diameter = outer_diameter
         self.inner_diameter = inner_diameter
+        self._validate_diameters()
         self.rpm = rpm
 
         factor = self._rpm * (self._outer_diameter + self._inner_diameter) / 2
 
         return round(factor)
+
+    def _validate_diameters(self):
+        if self._inner_diameter >= self._outer_diameter:
+            raise ConceptError('Inner Diameter must be '
+                               'lower than Outer Diameter')
 
     @property
     def outer_diameter(self):
@@ -168,4 +175,4 @@ class Bearing:
 
     @rpm.setter
     def rpm(self, value):
-        validate(self, 'Velocity', value, '_rpm', strict=True)
+        validate(self, 'Rotation Velocity', value, '_rpm', strict=True)
