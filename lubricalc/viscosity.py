@@ -127,13 +127,14 @@ class Viscosity:
 
     def _validate_viscosity_index(self, v_index):
         if v_index < 0 or v_index > 300:
-            raise ConceptError('Viscosity Index not defined')
+            raise ConceptError('Viscosity Index: not defined')
 
     def viscosity_at_40(self, viscosity100, v_index):
         """Calculate the Kinematic Viscosity at 40°C."""
         # Validate Data
         self.viscosity100 = viscosity100
         self.v_index = v_index
+        self._validate_viscosity_index(self._v_index)
 
         temp_v_index = self._v_index
         n = self._viscosity100
@@ -147,6 +148,7 @@ class Viscosity:
         # Validate Data
         self.viscosity40 = viscosity40
         self.v_index = v_index
+        self._validate_viscosity_index(self._v_index)
 
         temp_v_index = self._v_index
         n = 2.0
