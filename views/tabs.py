@@ -362,15 +362,12 @@ class BearingTab(BaseTab):
         self.frequency_label = QtWidgets.QLabel('Re-lubrication Frequency')
         self.frequency_label.setFont(self.font)
         self.rpm1_line_edit = QtWidgets.QLineEdit()
-        frequency_layout.addRow('Rotation Speed (rpm):', self.rpm1_line_edit)
+        frequency_layout.addRow('Rotation Velocity (rpm):', self.rpm1_line_edit)
         self.d1_line_edit = QtWidgets.QLineEdit()
         frequency_layout.addRow('Inner Diameter (mm):', self.d1_line_edit)
         self.Ft = QtWidgets.QComboBox()
         frequency_layout.addRow('Temperature:', self.Ft)
-        self.Ft.addItems(('< 65°C',
-                          '65 to 80°C',
-                          '80 to 93°C',
-                          '> 93°C',))
+        self.Ft.addItems(('< 65°C', '65 to 80°C', '80 to 93°C', '> 93°C',))
         self.Fc = QtWidgets.QComboBox()
         frequency_layout.addRow('Contamination:', self.Fc)
         self.Fc.addItems(('Light, no abrasive dust',
@@ -387,9 +384,9 @@ class BearingTab(BaseTab):
 
         self.Fv = QtWidgets.QComboBox()
         frequency_layout.addRow('Vibration:', self.Fv)
-        self.Fv.addItems(('Top speed < 0.5 cm/s',
-                          'Top speed from 0.5 to 1.0 cm/s',
-                          'Top speed > 1.0 cm/s'))
+        self.Fv.addItems(('Top velocity < 0.5 cm/s',
+                          'Top velocity from 0.5 to 1.0 cm/s',
+                          'Top velocity > 1.0 cm/s'))
 
         self.Fp = QtWidgets.QComboBox()
         frequency_layout.addRow('Position:', self.Fp)
