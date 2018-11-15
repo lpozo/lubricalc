@@ -46,23 +46,26 @@ class Viscosity:
                 (L - H)
 
         where:
-
         KV40:  kinematic viscosity at 40°C of the oil whose viscosity
                index is to be calculated mm^2/s (cSt).
-        KV100: kinematic viscosity at 100°C of the oil whose viscosity
-               index is to be calculated, mm^2/s (cSt)
         L: kinematic viscosity at 40°C of an oil of 0 viscosity
            index having the same kinematic viscosity at 100°C as
            the oil whose viscosity index is to be calculated,
            mm^2/s (cSt)
-           L = a * KV100 ** 2 + b * KV100 + c
-           a, b, c: interpolation coefficients
         H: kinematic viscosity at 40°C of an oil of 100 viscosity
            index having the same kinematic viscosity at 100°C as
            the oil whose viscosity index is to be calculated mm 2 /s
            (cSt)
-           H = d * KV100 ** 2 + e * KV100 + f
-           d, e, f: interpolation coefficients
+
+        L = a * KV100^2 + b * KV100 + c
+        where:
+        KV100: kinematic viscosity at 100°C of the oil whose viscosity
+               index is to be calculated, mm^2/s (cSt)
+        a, b, c: interpolation coefficients
+
+        H = d * KV100^2 + e * KV100 + f
+        where:
+        d, e, f: interpolation coefficients
 
         - Viscosity Index of 100 and Greater
 
@@ -76,6 +79,40 @@ class Viscosity:
         N = --------------------------
                    log10(KV100)
         """
+        v_index = self._viscosity_index(viscosity40, viscosity100)
+        self._validate_viscosity_index(v_index)
+        return v_index
+
+    def viscosity_at_40(self, viscosity100, v_index):
+        """Calculate the Kinematic Viscosity at 40°C."""
+        # Validate Data
+        self.viscosity100 = viscosity100
+        self.v_index = v_index
+        self._validate_viscosity_index(self._v_index)
+
+        temp_v_index = self._v_index
+        n = self._viscosity100
+        while temp_v_index >= self._v_index and n <= 2000:
+            temp_v_index = self._viscosity_index(n, self._viscosity100)
+            n += 0.05
+        return round((n * 100 + 0.1) / 100, 2)
+
+    def viscosity_at_100(self, viscosity40, v_index):
+        """Calculate the Kinematic Viscosity at 100°C."""
+        # Validate Data
+        self.viscosity40 = viscosity40
+        self.v_index = v_index
+        self._validate_viscosity_index(self._v_index)
+
+        temp_v_index = self._v_index
+        n = 2.0
+        while temp_v_index <= self._v_index and n <= 500.0:
+            temp_v_index = self._viscosity_index(self._viscosity40, n)
+            n += 0.01
+        return round((n * 100 + 0.01) / 100, 2)
+
+    def _viscosity_index(self, viscosity40, viscosity100):
+        """Calculate the Viscosity Index (VI) by ASTM-D2270."""
         # Validate Data
         self.viscosity40 = viscosity40
         self.viscosity100 = viscosity100
@@ -115,47 +152,17 @@ class Viscosity:
         H = d * self._viscosity100 ** 2 + e * self._viscosity100 + f
 
         if self._viscosity40 >= H:
-            v_index = round(((L - self._viscosity40) / (L - H)) * 100)
-            self._validate_viscosity_index(v_index)
-            return v_index
+            return round(((L - self._viscosity40) / (L - H)) * 100)
 
         N = ((math.log10(H) - math.log10(self._viscosity40)) /
              math.log10(self._viscosity100))
-        v_index = round(((10 ** N - 1) / 0.00715) + 100)
-        self._validate_viscosity_index(v_index)
-        return v_index
 
-    def _validate_viscosity_index(self, v_index):
+        return round(((10 ** N - 1) / 0.00715) + 100)
+
+    @staticmethod
+    def _validate_viscosity_index(v_index):
         if v_index < 0 or v_index > 300:
             raise ConceptError('Viscosity Index: not defined')
-
-    def viscosity_at_40(self, viscosity100, v_index):
-        """Calculate the Kinematic Viscosity at 40°C."""
-        # Validate Data
-        self.viscosity100 = viscosity100
-        self.v_index = v_index
-        self._validate_viscosity_index(self._v_index)
-
-        temp_v_index = self._v_index
-        n = self._viscosity100
-        while temp_v_index >= self._v_index and n <= 2000:
-            temp_v_index = self.viscosity_index(n, self._viscosity100)
-            n += 0.05
-        return round((n * 100 + 0.1) / 100, 2)
-
-    def viscosity_at_100(self, viscosity40, v_index):
-        """Calculate the Kinematic Viscosity at 100°C."""
-        # Validate Data
-        self.viscosity40 = viscosity40
-        self.v_index = v_index
-        self._validate_viscosity_index(self._v_index)
-
-        temp_v_index = self._v_index
-        n = 2.0
-        while temp_v_index <= self._v_index and n <= 500.0:
-            temp_v_index = self.viscosity_index(self._viscosity40, n)
-            n += 0.01
-        return round((n * 100 + 0.01) / 100, 2)
 
     @property
     def viscosity40(self):
