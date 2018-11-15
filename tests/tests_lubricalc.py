@@ -244,9 +244,14 @@ class TestBearing:
                                                fp=0,
                                                fd=2) == 508
 
-    def test_speed_factor(self):
+    def test_velocity_factor(self):
         """Test speed_factor()."""
         assert Bearing().velocity_factor(58, 45, 3000) == 154500
+
+    @nose.tools.raises(ConceptError)
+    def test_velocity_factor_inverted_diameters(self):
+        """Test speed_factor()."""
+        Bearing().velocity_factor(45, 60, 3000)
 
 
 if __name__ == '__main__':
