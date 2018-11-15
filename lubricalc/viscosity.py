@@ -170,7 +170,7 @@ class Viscosity:
 
     @viscosity40.setter
     def viscosity40(self, value):
-        validate(self, 'Viscosity at 40°C', value, '_viscosity40', limit=1.99)
+        validate(self, 'Viscosity at 40°C', value, '_viscosity40', limit=2)
 
     @property
     def viscosity100(self):
@@ -178,7 +178,7 @@ class Viscosity:
 
     @viscosity100.setter
     def viscosity100(self, value):
-        validate(self, 'Viscosity at 100°C', value, '_viscosity100', limit=1.99)
+        validate(self, 'Viscosity at 100°C', value, '_viscosity100', limit=2)
 
     @property
     def v_index(self):

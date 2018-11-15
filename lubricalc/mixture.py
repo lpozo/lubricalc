@@ -83,7 +83,7 @@ class OilMixture:
 
     @viscosity0.setter
     def viscosity0(self, value):
-        validate(self, '1st. Oil Viscosity', value, '_viscosity0', limit=1.99)
+        validate(self, '1st. Oil Viscosity', value, '_viscosity0', limit=2)
 
     @property
     def viscosity1(self):
@@ -91,7 +91,7 @@ class OilMixture:
 
     @viscosity1.setter
     def viscosity1(self, value):
-        validate(self, '2nd. Oil Viscosity', value, '_viscosity1', limit=1.99)
+        validate(self, '2nd. Oil Viscosity', value, '_viscosity1', limit=2)
 
     @property
     def mix_viscosity(self):
@@ -99,7 +99,7 @@ class OilMixture:
 
     @mix_viscosity.setter
     def mix_viscosity(self, value):
-        validate(self, 'Mixture Viscosity', value, '_mix_viscosity', limit=1.99)
+        validate(self, 'Mixture Viscosity', value, '_mix_viscosity', limit=2)
 
     @property
     def oil0_percent(self):
@@ -107,5 +107,5 @@ class OilMixture:
 
     @oil0_percent.setter
     def oil0_percent(self, value):
-        validate(self, 'First Oil Percent in Mix', value, '_oil0_percent',
-                 limit=1.99)
+        validate(self, '1st. Oil Percent in Mix', value, '_oil0_percent',
+                 limit=0, strict=True)

@@ -144,7 +144,7 @@ class Bearing:
 
     @outer_diameter.setter
     def outer_diameter(self, value):
-        validate(self, 'Outer Diameter', value, '_outer_diameter')
+        validate(self, 'Outer Diameter', value, '_outer_diameter', strict=True)
 
     @property
     def inner_diameter(self):
@@ -152,7 +152,7 @@ class Bearing:
 
     @inner_diameter.setter
     def inner_diameter(self, value):
-        validate(self, 'Inner Diameter', value, '_inner_diameter')
+        validate(self, 'Inner Diameter', value, '_inner_diameter', strict=True)
 
     @property
     def width(self):
@@ -160,7 +160,7 @@ class Bearing:
 
     @width.setter
     def width(self, value):
-        validate(self, 'Width', value, '_width')
+        validate(self, 'Width', value, '_width', strict=True)
 
     @property
     def rpm(self):
@@ -168,4 +168,4 @@ class Bearing:
 
     @rpm.setter
     def rpm(self, value):
-        validate(self, 'Velocity', value, '_rpm')
+        validate(self, 'Velocity', value, '_rpm', strict=True)

@@ -294,7 +294,6 @@ class BaseOilMixtureTab(BaseTab):
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
 
-
     def on_calculate_proportions_btn_clicked(self):
         try:
             proportions = OilMixture().mix_proportions(
@@ -409,25 +408,52 @@ class BearingTab(BaseTab):
         return frequency_group
 
     def on_grease_amount_btn_clicked(self):
-        grease_amount = Bearing().grease_amount(
-            outer_diameter=self.D_line_edit.text(),
-            width=self.B_line_edit.text())
-        self.grease_amount_label.setText('Amount of Grease for Re-lubrication'
-                                         + ' = ' + str(grease_amount)
-                                         + ' ' + 'g')
+        try:
+            grease_amount = Bearing().grease_amount(
+                outer_diameter=self.D_line_edit.text(),
+                width=self.B_line_edit.text())
+            self.grease_amount_label.setText('Amount of Grease for '
+                                             'Re-lubrication'
+                                             + ' = ' + str(grease_amount)
+                                             + ' ' + 'g')
+        except ValueError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ConceptError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
     def on_frequency_btn_clicked(self):
-        frequency = Bearing().lubrication_frequency(
-            rpm=self.rpm1_line_edit.text(),
-            inner_diameter=self.d1_line_edit.text(),
-            ft=self.Ft.currentIndex(),
-            fh=self.Fh.currentIndex(),
-            fv=self.Fv.currentIndex(),
-            fp=self.Fp.currentIndex(),
-            fc=self.Fc.currentIndex(),
-            fd=self.Fd.currentIndex())
-        self.frequency_label.setText('Re-lubrication Frequency' + ' = ' +
-                                     str(frequency) + ' ' + 'hours')
+        try:
+            frequency = Bearing().lubrication_frequency(
+                rpm=self.rpm1_line_edit.text(),
+                inner_diameter=self.d1_line_edit.text(),
+                ft=self.Ft.currentIndex(),
+                fh=self.Fh.currentIndex(),
+                fv=self.Fv.currentIndex(),
+                fp=self.Fp.currentIndex(),
+                fc=self.Fc.currentIndex(),
+                fd=self.Fd.currentIndex())
+            self.frequency_label.setText('Re-lubrication Frequency' + ' = ' +
+                                         str(frequency) + ' ' + 'hours')
+        except ValueError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ConceptError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
 
 class SulfatedAshTab(BaseTab):

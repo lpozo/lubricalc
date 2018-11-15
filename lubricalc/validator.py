@@ -46,18 +46,23 @@ class Validator:
         return value
 
     @staticmethod
-    def validate_lower_limit(name, value, limit=0):
+    def validate_lower_limit(name, value, limit=0, strict=False):
         """Validate value is greater than a given value (limit)."""
-        if value <= limit:
-            raise ConceptError('{0}: Input value must be '
-                               'greater than or equal to {1}'.format(
-                                    name, round(limit)))
+        if not strict:
+            if value < limit:
+                raise ConceptError('{0}: Input value must be '
+                                   'greater than or equal to {1}'.format(
+                                        name, limit))
+        else:
+            if value <= limit:
+                raise ConceptError('{0}: Input value must be '
+                                   'greater than {1}'.format(name, limit))
 
 
-def validate(obj, name, value, attr, limit=0):
+def validate(obj, name, value, attr, limit=0, strict=False):
     """Validate and set attributes of an object."""
     validator = Validator()
     value = validator.validate_float(name, value)
     lower_limit = limit
-    validator.validate_lower_limit(name, value, lower_limit)
+    validator.validate_lower_limit(name, value, lower_limit, strict)
     setattr(obj, attr, value)

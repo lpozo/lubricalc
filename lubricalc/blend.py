@@ -46,41 +46,6 @@ class OilBlend:
         self._oil_density = None
         self._metal_content = None
 
-    @property
-    def additive_percent(self):
-        return self._additive_percent
-
-    @additive_percent.setter
-    def additive_percent(self, value):
-        validate(self, 'Additive (% volume)', value, '_additive_percent')
-
-    @property
-    def additive_density(self):
-        return self._additive_density
-
-    @additive_density.setter
-    def additive_density(self, value):
-        validate(self, 'Additive Density', value, '_additive_density')
-
-    @property
-    def oil_density(self):
-        return self._oil_density
-
-    @oil_density.setter
-    def oil_density(self, value):
-        validate(self, 'Final Oil Density', value, '_oil_density')
-
-    @property
-    def metal_content(self):
-        return self._metal_content
-
-    @metal_content.setter
-    def metal_content(self, value):
-        if value == '':
-            self._metal_content = 0.0
-        else:
-            validate(self, 'Metal Content', value, '_metal_content', limit=-1)
-
     @classmethod
     def metals(cls):
         return cls.contributions.keys()
@@ -118,3 +83,40 @@ class OilBlend:
         total_ash = sum(self._sulfated_ash(metal, content) for
                         metal, content in metal_contents.items())
         return round(total_ash, 2)
+
+    @property
+    def additive_percent(self):
+        return self._additive_percent
+
+    @additive_percent.setter
+    def additive_percent(self, value):
+        validate(self, 'Additive (% volume)', value, '_additive_percent',
+                 strict=True)
+
+    @property
+    def additive_density(self):
+        return self._additive_density
+
+    @additive_density.setter
+    def additive_density(self, value):
+        validate(self, 'Additive Density', value, '_additive_density',
+                 strict=True)
+
+    @property
+    def oil_density(self):
+        return self._oil_density
+
+    @oil_density.setter
+    def oil_density(self, value):
+        validate(self, 'Final Oil Density', value, '_oil_density', strict=True)
+
+    @property
+    def metal_content(self):
+        return self._metal_content
+
+    @metal_content.setter
+    def metal_content(self, value):
+        if value == '':
+            self._metal_content = 0.0
+        else:
+            validate(self, 'Metal Content', value, '_metal_content')

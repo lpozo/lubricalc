@@ -78,7 +78,7 @@ class Reynolds:
 
     @velocity.setter
     def velocity(self, value):
-        validate(self, 'Velocity', value, '_velocity')
+        validate(self, 'Velocity', value, '_velocity', limit=2)
 
     @property
     def viscosity(self):
@@ -86,7 +86,7 @@ class Reynolds:
 
     @viscosity.setter
     def viscosity(self, value):
-        validate(self, 'Viscosity', value, '_viscosity', limit=1.99)
+        validate(self, 'Viscosity', value, '_viscosity', limit=2)
 
     @property
     def length(self):
@@ -94,4 +94,4 @@ class Reynolds:
 
     @length.setter
     def length(self, value):
-        validate(self, 'Length', value, '_length')
+        validate(self, 'Length', value, '_length', strict=True)
