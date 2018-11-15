@@ -161,7 +161,7 @@ class Viscosity:
 
     @staticmethod
     def _validate_viscosity_index(v_index):
-        if v_index < 0 or v_index > 300:
+        if v_index < 0.0 or v_index > 300.0:
             raise ConceptError('Viscosity Index: not defined')
 
     @property
