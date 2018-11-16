@@ -204,7 +204,7 @@ class BaseOilMixtureTab(BaseTab):
 
     def __init__(self):
         super().__init__()
-        self.text = 'Base Oil Mixture'
+        self.text = 'Oil Mixture'
         self.setup_ui()
         self.mix_viscosity_btn.clicked.connect(
             self.on_mix_viscosity_button_clicked)
@@ -326,9 +326,9 @@ class BearingTab(BaseTab):
         super().__init__()
         self.text = 'Bearing Lubrication'
         self.setup_ui()
-        self.grease_amount_button.clicked.connect(
-            self.on_grease_amount_btn_clicked)
-        self.frequency_button.clicked.connect(self.on_frequency_btn_clicked)
+        self.grease_amount_btn.clicked.connect(
+            self.on_grease_amount_button_clicked)
+        self.frequency_btn.clicked.connect(self.on_frequency_button_clicked)
 
     def setup_ui(self):
         """Setup tab UI."""
@@ -338,77 +338,74 @@ class BearingTab(BaseTab):
         self.setLayout(general_layout)
 
     def _create_grease_amount_group(self):
-        grease_amount_group = QtWidgets.QGroupBox(
+        grease_amount_gpb = QtWidgets.QGroupBox(
             'Amount of Grease for Re-lubrication')
         grease_amount_layout = QtWidgets.QFormLayout()
-        self.D_line_edit = QtWidgets.QLineEdit()
-        self.B_line_edit = QtWidgets.QLineEdit()
-        self.grease_amount_button = QtWidgets.QPushButton('Calculate')
+        self.outer_diameter_edit = QtWidgets.QLineEdit()
+        self.width_edit = QtWidgets.QLineEdit()
+        self.grease_amount_btn = QtWidgets.QPushButton('Calculate')
         self.grease_amount_label = QtWidgets.QLabel(
             'Amount of Grease for Re-lubrication')
         self.grease_amount_label.setFont(self.font)
-        grease_amount_layout.addRow('Outer Diameter (mm):', self.D_line_edit)
-        grease_amount_layout.addRow('Total Width (mm):', self.B_line_edit)
-        grease_amount_layout.addRow(self.grease_amount_button,
+        grease_amount_layout.addRow('Outer Diameter (mm):',
+                                    self.outer_diameter_edit)
+        grease_amount_layout.addRow('Total Width (mm):', self.width_edit)
+        grease_amount_layout.addRow(self.grease_amount_btn,
                                     self.grease_amount_label)
-        grease_amount_group.setLayout(grease_amount_layout)
-        return grease_amount_group
+        grease_amount_gpb.setLayout(grease_amount_layout)
+
+        return grease_amount_gpb
 
     def _create_frequency_group(self):
         frequency_group = QtWidgets.QGroupBox('Re-lubrication Frequency')
         frequency_layout = QtWidgets.QFormLayout()
         frequency_group.setLayout(frequency_layout)
-        self.frequency_button = QtWidgets.QPushButton('Calculate')
+        self.frequency_btn = QtWidgets.QPushButton('Calculate')
         self.frequency_label = QtWidgets.QLabel('Re-lubrication Frequency')
         self.frequency_label.setFont(self.font)
-        self.rpm1_line_edit = QtWidgets.QLineEdit()
-        frequency_layout.addRow('Rotation Velocity (rpm):', self.rpm1_line_edit)
-        self.d1_line_edit = QtWidgets.QLineEdit()
-        frequency_layout.addRow('Inner Diameter (mm):', self.d1_line_edit)
-        self.Ft = QtWidgets.QComboBox()
-        frequency_layout.addRow('Temperature:', self.Ft)
-        self.Ft.addItems(('< 65°C', '65 to 80°C', '80 to 93°C', '> 93°C',))
-        self.Fc = QtWidgets.QComboBox()
-        frequency_layout.addRow('Contamination:', self.Fc)
-        self.Fc.addItems(('Light, no abrasive dust',
-                          'Severe, no abrasive dust',
-                          'Light, abrasive dust',
-                          'Severe, abrasive dust'))
-
-        self.Fh = QtWidgets.QComboBox()
-        frequency_layout.addRow('Humidity:', self.Fh)
-        self.Fh.addItems(('Relative Humidity < 80 %',
-                          'Relative Humidity from 80 to 90 %',
-                          'Occasional condensation',
-                          'Water Presence'))
-
-        self.Fv = QtWidgets.QComboBox()
-        frequency_layout.addRow('Vibration:', self.Fv)
-        self.Fv.addItems(('Top velocity < 0.5 cm/s',
-                          'Top velocity from 0.5 to 1.0 cm/s',
-                          'Top velocity > 1.0 cm/s'))
-
-        self.Fp = QtWidgets.QComboBox()
-        frequency_layout.addRow('Position:', self.Fp)
-        self.Fp.addItems(('Horizontal',
-                          '45 Degrees',
-                          'Vertical'))
-
-        self.Fd = QtWidgets.QComboBox()
-        frequency_layout.addRow('Bearing Design:', self.Fd)
-        self.Fd.addItems(('Ball bearing',
-                          'Cylinder/Needle roller bearing',
-                          'Conical roller bearing'))
-
-        frequency_layout.addRow(self.frequency_button, self.frequency_label)
+        self.rpm_edit = QtWidgets.QLineEdit()
+        frequency_layout.addRow('Rotation Velocity (rpm):', self.rpm_edit)
+        self.inner_diameter_edit = QtWidgets.QLineEdit()
+        frequency_layout.addRow('Inner Diameter (mm):',
+                                self.inner_diameter_edit)
+        self.ft_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Temperature:', self.ft_combo)
+        self.ft_combo.addItems(('< 65°C', '65 to 80°C', '80 to 93°C',
+                                '> 93°C',))
+        self.fc_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Contamination:', self.fc_combo)
+        self.fc_combo.addItems(('Light, no abrasive dust',
+                                'Severe, no abrasive dust',
+                                'Light, abrasive dust',
+                                'Severe, abrasive dust'))
+        self.fh_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Humidity:', self.fh_combo)
+        self.fh_combo.addItems(('Relative Humidity < 80 %',
+                                'Relative Humidity from 80 to 90 %',
+                                'Occasional condensation',
+                                'Water Presence'))
+        self.fv_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Vibration:', self.fv_combo)
+        self.fv_combo.addItems(('Top velocity < 0.5 cm/s',
+                                'Top velocity from 0.5 to 1.0 cm/s',
+                                'Top velocity > 1.0 cm/s'))
+        self.fp_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Position:', self.fp_combo)
+        self.fp_combo.addItems(('Horizontal', '45 Degrees', 'Vertical'))
+        self.fd_combo = QtWidgets.QComboBox()
+        frequency_layout.addRow('Bearing Design:', self.fd_combo)
+        self.fd_combo.addItems(('Ball bearing',
+                                'Cylinder/Needle roller bearing',
+                                'Conical roller bearing'))
+        frequency_layout.addRow(self.frequency_btn, self.frequency_label)
 
         return frequency_group
 
-    def on_grease_amount_btn_clicked(self):
+    def on_grease_amount_button_clicked(self):
         try:
             grease_amount = Bearing().grease_amount(
-                outer_diameter=self.D_line_edit.text(),
-                width=self.B_line_edit.text())
+                outer_diameter=self.outer_diameter_edit.text(),
+                width=self.width_edit.text())
             self.grease_amount_label.setText('Amount of Grease for '
                                              'Re-lubrication'
                                              + ' = ' + str(grease_amount)
@@ -426,17 +423,17 @@ class BearingTab(BaseTab):
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
 
-    def on_frequency_btn_clicked(self):
+    def on_frequency_button_clicked(self):
         try:
             frequency = Bearing().lubrication_frequency(
-                rpm=self.rpm1_line_edit.text(),
-                inner_diameter=self.d1_line_edit.text(),
-                ft=self.Ft.currentIndex(),
-                fh=self.Fh.currentIndex(),
-                fv=self.Fv.currentIndex(),
-                fp=self.Fp.currentIndex(),
-                fc=self.Fc.currentIndex(),
-                fd=self.Fd.currentIndex())
+                rpm=self.rpm_edit.text(),
+                inner_diameter=self.inner_diameter_edit.text(),
+                ft=self.ft_combo.currentIndex(),
+                fh=self.fh_combo.currentIndex(),
+                fv=self.fv_combo.currentIndex(),
+                fp=self.fp_combo.currentIndex(),
+                fc=self.fc_combo.currentIndex(),
+                fd=self.fd_combo.currentIndex())
             self.frequency_label.setText('Re-lubrication Frequency' + ' = ' +
                                          str(frequency) + ' ' + 'hours')
         except ValueError as error:
@@ -453,15 +450,15 @@ class BearingTab(BaseTab):
                                   self).show()
 
 
-class SulfatedAshTab(BaseTab):
-    """Class to implement Sulfated ash tab."""
+class AdditiveAshTab(BaseTab):
+    """Class to implement Additive / Ash tab."""
 
     def __init__(self):
         super().__init__()
-        self.text = 'Total Ash'
+        self.text = 'Additive/Ash'
         self.setup_ui()
-        self.additive_btn.clicked.connect(self.on_additive_btn_clicked)
-        self.total_ash_btn.clicked.connect(self.on_total_ash_btn_clicked)
+        self.additive_btn.clicked.connect(self.on_additive_button_clicked)
+        self.total_ash_btn.clicked.connect(self.on_total_ash_button_clicked)
 
     def setup_ui(self):
         """Setup tab UI."""
@@ -487,6 +484,7 @@ class SulfatedAshTab(BaseTab):
         self.additive_label = QtWidgets.QLabel('Additive')
         self.additive_label.setFont(self.font)
         additive_layout.addRow(self.additive_btn, self.additive_label)
+
         return additive_gpb
 
     def _create_ash_group(self):
@@ -510,20 +508,47 @@ class SulfatedAshTab(BaseTab):
 
         return ash_gpb
 
-    def on_additive_btn_clicked(self):
-        blend = OilBlend(additive_percent=self.additive_percent0_edit.text())
-        additive = blend.additive_percent_mass(
-            additive_density=self.additive_density_edit.text(),
-            oil_density=self.oil_density_edit.text())
-        self.additive_label.setText('Additive' + ' = ' +
-                                    str(additive) + ' ' + '% by mass')
+    def on_additive_button_clicked(self):
+        try:
+            blend = OilBlend(self.additive_percent0_edit.text())
+            additive = blend.additive_percent_mass(
+                additive_density=self.additive_density_edit.text(),
+                oil_density=self.oil_density_edit.text())
+            self.additive_label.setText('Additive' + ' = ' +
+                                        str(additive) + ' ' + '% by mass')
+        except ValueError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ConceptError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
 
-    def on_total_ash_btn_clicked(self):
-        blend = OilBlend(additive_percent=self.additive_percent1_edit.text())
-        metal_contents = {}
-        for metal in OilBlend.metals():
-            metal_contents[metal] = self.__dict__[metal].text()
+    def on_total_ash_button_clicked(self):
+        try:
+            blend = OilBlend(self.additive_percent1_edit.text())
 
-        total_ash = blend.total_ash(**metal_contents)
-        self.total_ash_label.setText('Total Ash' + ' = ' + str(total_ash) +
-                                     ' % by mass')
+            metal_contents = {}
+            for metal in OilBlend.metals():
+                metal_contents[metal] = self.__dict__[metal].text()
+
+            total_ash = blend.total_ash(**metal_contents)
+            self.total_ash_label.setText('Total Ash' + ' = ' + str(total_ash) +
+                                         ' % by mass')
+        except ValueError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ConceptError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
