@@ -51,11 +51,11 @@ class OilBlend:
         return cls.contributions.keys()
 
     def additive_percent_mass(self, additive_density, oil_density):
-        """Return the % by mass of Additive in a motor oil.
+        """Calculate the % by mass of Additive in a motor oil.
 
-                             Additive Density (kg/L) * Additive (% volume)
-        Additive (% mass) = ----------------------------------------------
-                                Density of Finished Oil (kg/L)
+                                Additive Density (kg/L) * Additive (% volume)
+        Additive (% mass) = ---------------------------------------------------
+                                       Density of Finished Oil (kg/L)
         """
         # Data Validation
         self.additive_density = additive_density
@@ -65,7 +65,7 @@ class OilBlend:
                      self._oil_density, 2)
 
     def _sulfated_ash(self, metal, metal_content):
-        """Return the % of sulfated ash (SA) of a motor oil.
+        """Calculate the % of sulfated ash (SA) of a motor oil.
 
               Metal Content (% mass) * Contribution to Ash * Additive Package (% by volume)
         SA = -------------------------------------------------------------------------------
@@ -108,7 +108,8 @@ class OilBlend:
 
     @oil_density.setter
     def oil_density(self, value):
-        validate(self, 'Final Oil Density', value, '_oil_density', strict=True)
+        validate(self, 'Finished Oil Density', value, '_oil_density',
+                 strict=True)
 
     @property
     def metal_content(self):

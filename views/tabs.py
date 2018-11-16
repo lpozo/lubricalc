@@ -478,9 +478,10 @@ class AdditiveAshTab(BaseTab):
         additive_layout.addRow('Additive Density (kg/L):',
                                self.additive_density_edit)
         self.oil_density_edit = QtWidgets.QLineEdit()
-        additive_layout.addRow('Density of Finished Oil (kg/L):',
+        additive_layout.addRow('Finished Oil Density (kg/L):',
                                self.oil_density_edit)
         self.additive_btn = QtWidgets.QPushButton('Calculate')
+        self.additive_btn.setToolTip(OilBlend(1).additive_percent_mass.__doc__)
         self.additive_label = QtWidgets.QLabel('Additive')
         self.additive_label.setFont(self.font)
         additive_layout.addRow(self.additive_btn, self.additive_label)

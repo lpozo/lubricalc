@@ -25,6 +25,5 @@
 APP_NAME = 'Lubricalc'
 VERSION = '0.1'
 AUTHOR = 'Leodanis Pozo Ramos'
-DESC = 'A Machinery lubrication calculations appp writen in Python 3, with a PyQt5 GUI.'
-LONG_DESC = DESC + '\n' + APP_NAME + ' ' + """is intended for users to make some
-calculations on machinery lubrication."""
+DESC = APP_NAME + ' is a desktop application to perform calculations on machinery lubrication, oil analysis and lubrication engineering.'
+LONG_DESC = DESC + '\n' + APP_NAME + ' ' + 'is been writen in Python 3, using PyQt5 for the Graphical User Interface.'
