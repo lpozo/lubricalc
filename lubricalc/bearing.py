@@ -113,7 +113,7 @@ class Bearing:
             v = int(v)
             k_factor *= factors_map[k][v]
 
-        frequency = k_factor * ((14_000_000 / (self._rpm * math.sqrt(
+        frequency = k_factor * ((14000000 / (self._rpm * math.sqrt(
             self._inner_diameter))) - 4 * self._inner_diameter)
 
         return round(frequency)
