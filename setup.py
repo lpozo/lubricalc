@@ -27,12 +27,15 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from lubricalc.config import DESC
+from lubricalc.config import LONG_DESC
+
 
 if __name__ == '__main__':
     setup(name='Lubricalc',
           version='0.1',
-          description='Lubricalc is a desktop application to perform calculations on machinery lubrication.',
-          long_description='Lubricalc is a desktop application to perform calculations on machinery lubrication, oil analysis and lubrication engineering.',
+          description=DESC,
+          long_description=LONG_DESC,
           author='Leodanis Pozo Ramos',
           author_email='lpozor78@gmail.com',
           maintainer='Leodanis Pozo Ramos',
