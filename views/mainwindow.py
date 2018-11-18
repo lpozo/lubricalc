@@ -22,7 +22,7 @@
 """This module provides main window for Lubricalc app."""
 
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from lubricalc.config import APP_NAME
 from lubricalc.config import VERSION
@@ -41,8 +41,8 @@ class LubricalcMWin(QMainWindow):
     def _init_win(self):
         self.resize(600, 600)
         self.setWindowTitle(APP_NAME + ' ' + VERSION)
-        # self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(
-        #     'images/multimedia-audio-player.ico')))
+        self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(
+            '../share/icons/lubricalc.ico')))
         self.central_widget = TabsCollection(self)
         self.central_widget.setMinimumSize(QtCore.QSize(300, 300))
         self.setCentralWidget(self.central_widget)
