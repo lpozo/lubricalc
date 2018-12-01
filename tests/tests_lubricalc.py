@@ -157,6 +157,22 @@ class TestViscosity:
     def test_viscosity_at_100(self):
         assert Viscosity().viscosity_at_100(112, v_index=140) == 15.12
 
+    def test_viscosity_at_20_iso5(self):
+        assert Viscosity().viscosity_at_any_temp(4.6, 2, 20) == 6.89
+
+    def test_viscosity_at_20_iso46(self):
+        assert Viscosity().viscosity_at_any_temp(46, 7, 20) == 130.66
+
+    def test_viscosity_at_35_iso46(self):
+        assert Viscosity().viscosity_at_any_temp(46, 7, 35.0) == 58.08
+
+    def test_viscosity_at_35_iso46_string_input(self):
+        assert Viscosity().viscosity_at_any_temp('46', '7 ', '35.0') == 58.08
+
+    @nose.tools.raises(ConceptError)
+    def test_viscosity_lt_273_iso46(self):
+        Viscosity().viscosity_at_any_temp('46', '7 ', '-275')
+
 
 class TestOilMixture:
     """Class to test OilMixture class."""
