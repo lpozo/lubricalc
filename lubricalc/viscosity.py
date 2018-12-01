@@ -34,6 +34,7 @@ class Viscosity:
     def __init__(self):
         self._viscosity40 = None
         self._viscosity100 = None
+        self._temperature = None
         self._v_index = None
 
     def viscosity_index(self, viscosity40, viscosity100):
@@ -111,6 +112,25 @@ class Viscosity:
             n += 0.01
         return round((n * 100 + 0.01) / 100, 2)
 
+    def viscosity_at_any_temp(self, viscosity40, viscosity100, temperature):
+        """Calculate the kinematic viscosity at any temperature (ASTM D341)."""
+        # Validate Data
+        self.viscosity40 = viscosity40
+        self.viscosity100 = viscosity100
+        self.temperature = temperature
+
+        to_kelvin = 273.15
+
+        x = math.log10(math.log10(self._viscosity40 + 0.7))
+        y = math.log10(math.log10(self._viscosity100 + 0.7))
+        t0 = math.log10(40 + to_kelvin)
+        t1 = math.log10(100 + to_kelvin)
+        target_t = math.log10(self._temperature + to_kelvin)
+        b = (x - y) / (t1 - t0)
+        a = x + b * t0
+        v = 10 ** (10 ** (a - b * target_t)) - 0.7
+        return round(v, 2)
+
     def _viscosity_index(self, viscosity40, viscosity100):
         """Calculate the Viscosity Index (VI) by ASTM-D2270."""
         # Validate Data
@@ -161,7 +181,7 @@ class Viscosity:
 
     @staticmethod
     def _validate_viscosity_index(v_index):
-        if v_index < 0.0 or v_index > 300.0:
+        if v_index < 0.0 or v_index > 400.0:
             raise ConceptError('Viscosity Index: not defined')
 
     @property
@@ -187,3 +207,11 @@ class Viscosity:
     @v_index.setter
     def v_index(self, value):
         validate(self, 'Viscosity Index', value, '_v_index')
+
+    @property
+    def temperature(self):
+        return self._temperature
+
+    @temperature.setter
+    def temperature(self, value):
+        validate(self, 'Temperature', value, '_temperature', limit=-273.0)
