@@ -44,7 +44,7 @@ class LubricalcMWin(QMainWindow):
         self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(
             '../share/icons/lubricalc.ico')))
         self.central_widget = TabsCollection(self)
-        self.central_widget.setMinimumSize(QtCore.QSize(300, 300))
+        self.central_widget.setMinimumSize(QtCore.QSize(500, 650))
         self.setCentralWidget(self.central_widget)
         self.global_layout = QtWidgets.QVBoxLayout(self.central_widget)
         self.global_layout.setContentsMargins(12, 0, 12, 0)

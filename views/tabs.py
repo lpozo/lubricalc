@@ -68,6 +68,8 @@ class ViscosityTab(BaseTab):
             self.on_viscosity_40_button_clicked)
         self.viscosity_100_btn.clicked.connect(
             self.on_viscosity_100_button_clicked)
+        self.viscosity_any_btn.clicked.connect(
+            self.on_viscosity_any_button_clicked)
 
     def setup_ui(self):
         """Setup tab UI."""
@@ -75,6 +77,7 @@ class ViscosityTab(BaseTab):
         general_layout.addWidget(self._create_viscosity_index_group())
         general_layout.addWidget(self._create_viscosity_40_group())
         general_layout.addWidget(self._create_viscosity_100_group())
+        general_layout.addWidget(self._create_viscosity_any_group())
         self.setLayout(general_layout)
 
     def _create_viscosity_index_group(self):
@@ -133,6 +136,32 @@ class ViscosityTab(BaseTab):
         self.viscosity_100_btn.setToolTip(Viscosity().viscosity_at_100.__doc__)
         return viscosity_100_gpb
 
+    def _create_viscosity_any_group(self):
+        viscosity_any_gpb = QtWidgets.QGroupBox(
+            'Kinematic Viscosity at Operation Temperature')
+        viscosity_any_layout = QtWidgets.QFormLayout()
+        self.viscosity2_40_edit = QtWidgets.QLineEdit()
+        self.viscosity2_100_edit = QtWidgets.QLineEdit()
+        self.temperature_dspin = QtWidgets.QDoubleSpinBox()
+        self.temperature_dspin.setValue(60.0)
+        self.temperature_dspin.setMinimum(-273.0)
+        self.temperature_dspin.setMaximum(2500.0)
+        self.viscosity_any_label = QtWidgets.QLabel(
+            'Kinematic Viscosity at' + ' ' +
+            str(self.temperature_dspin.value()) + '°C')
+        self.viscosity_any_label.setFont(self.font)
+        self.viscosity_any_btn = QtWidgets.QPushButton('Calculate')
+        viscosity_any_layout.addRow('Kinematic Viscosity at 40°C (cSt):',
+                                    self.viscosity2_40_edit)
+        viscosity_any_layout.addRow('Kinematic Viscosity at 100°C (cSt):',
+                                    self.viscosity2_100_edit)
+        viscosity_any_layout.addRow('Operation Temperature (°C):',
+                                    self.temperature_dspin)
+        viscosity_any_layout.addRow(self.viscosity_any_btn,
+                                    self.viscosity_any_label)
+        viscosity_any_gpb.setLayout(viscosity_any_layout)
+        return viscosity_any_gpb
+
     def on_viscosity_index_button_clicked(self):
         try:
             vi = Viscosity().viscosity_index(
@@ -185,6 +214,29 @@ class ViscosityTab(BaseTab):
                 v_index=self.index1_edit.text())
             self.viscosity_100_label.setText('Kinematic Viscosity at 100°C' +
                                              ' = ' + str(result) + ' ' + 'cSt')
+        except ValueError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+        except ConceptError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
+
+    def on_viscosity_any_button_clicked(self):
+        try:
+            result = Viscosity().viscosity_at_any_temp(
+                viscosity40=self.viscosity2_40_edit.text(),
+                viscosity100=self.viscosity2_100_edit.text(),
+                temperature=self.temperature_dspin.value())
+            self.viscosity_any_label.setText(
+                'Kinematic Viscosity at' + ' ' +
+                str(self.temperature_dspin.value()) + '°C' +
+                ' = ' + str(result) + ' ' + 'cSt')
         except ValueError as error:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
