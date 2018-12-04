@@ -117,6 +117,7 @@ class Viscosity:
         # Validate Data
         self.viscosity40 = viscosity40
         self.viscosity100 = viscosity100
+        self._validate_viscosity_relation()
         self.temperature = temperature
 
         to_kelvin = 273.15
@@ -136,9 +137,7 @@ class Viscosity:
         # Validate Data
         self.viscosity40 = viscosity40
         self.viscosity100 = viscosity100
-        if self._viscosity100 > self._viscosity40:
-            raise InvertedViscosityError('Viscosity at 40°C must be'
-                                         ' greater than Viscosity at 100°C')
+        self._validate_viscosity_relation()
 
         up = float('inf')
         coefficients = {
@@ -178,6 +177,11 @@ class Viscosity:
              math.log10(self._viscosity100))
 
         return round(((10 ** N - 1) / 0.00715) + 100)
+
+    def _validate_viscosity_relation(self):
+        if self._viscosity100 > self._viscosity40:
+            raise InvertedViscosityError('Viscosity at 40°C must be'
+                                         ' greater than Viscosity at 100°C')
 
     @staticmethod
     def _validate_viscosity_index(v_index):

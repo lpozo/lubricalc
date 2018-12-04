@@ -243,6 +243,12 @@ class ViscosityTab(BaseTab):
                                   error.__str__(),
                                   QtWidgets.QMessageBox.Ok,
                                   self).show()
+        except InvertedViscosityError as error:
+            QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                                  'Error',
+                                  error.__str__(),
+                                  QtWidgets.QMessageBox.Ok,
+                                  self).show()
         except ConceptError as error:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',
