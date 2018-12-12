@@ -360,9 +360,9 @@ class BaseOilMixtureTab(BaseTab):
                 mix_viscosity=self.mix_viscosity_edit.text(),
                 temperature=self.temperature1_combo.currentText())
             self.oil1_label.setText('1st. Oil Proportion in Mixture' + ' = ' +
-                                    str(proportions[0]) + ' ' + '%')
+                                    str(proportions.oil1) + ' ' + '%')
             self.oil2_label.setText('2nd. Oil Proportion in Mixture' + ' = ' +
-                                    str(proportions[1]) + ' ' + '%')
+                                    str(proportions.oil2) + ' ' + '%')
         except ValueError as error:
             QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
                                   'Error',

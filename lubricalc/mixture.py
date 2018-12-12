@@ -21,6 +21,7 @@
 
 """This module provides OilMixture Class."""
 
+from collections import namedtuple
 import math
 
 from .exception import ViscosityIntervalError
@@ -74,8 +75,8 @@ class OilMixture:
         c = math.log(self._viscosity1 + K)
         oil1_percent = 10000 * (math.log(a / c) / math.log(b / c)) / 100
         oil2_percent = 100 - oil1_percent
-
-        return round(oil1_percent, 2), round(oil2_percent, 2)
+        Proportions = namedtuple('Proportions', ['oil1', 'oil2'])
+        return Proportions(round(oil1_percent, 2), round(oil2_percent, 2))
 
     @property
     def viscosity0(self):
