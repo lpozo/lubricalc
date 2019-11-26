@@ -24,6 +24,7 @@
 
 import nose
 
+import lubricalc.validator as v
 from lubricalc.exception import ConceptError
 from lubricalc.exception import InvertedViscosityError
 from lubricalc.exception import ViscosityIntervalError
@@ -38,6 +39,20 @@ from lubricalc.viscosity import Viscosity
 class TestValidator:
     """Class to test Validator class."""
     validator = Validator()
+    valid_float = v.Float()
+    positive_non_zero = v.NonZeroPositiveFloat()
+
+    @nose.tools.raises(ValueError)
+    def test_float_non_valid_number(self):
+        self.valid_float = 'n'
+
+    def test_float_valid_number(self):
+        self.valid_float = '1,2'
+        assert self.valid_float == 1.2
+
+    @nose.tools.raises(ValueError)
+    def test_positive_non_zero(self):
+        self.positive_non_zero = -15
 
     def test_validate_float(self):
         assert self.validator.validate_float('Variable', 1.02) == 1.02
