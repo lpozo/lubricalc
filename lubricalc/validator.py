@@ -66,3 +66,85 @@ def validate(obj, name, value, attr, limit=0, strict=False):
     lower_limit = limit
     validator.validate_lower_limit(name, value, lower_limit, strict)
     setattr(obj, attr, value)
+
+
+class Float:
+    """Descriptor for representing float values."""
+
+    def __get__(self, instance, owner):
+        return self._value
+
+    def __set__(self, instance, value):
+        """Validate input value as float."""
+        value = str(value).replace(',', '.').strip()
+        try:
+            value = float(value)
+        except ValueError:
+            raise ValueError('Input value must be a valid float number')
+
+        if value in (float('inf'), float('-inf')):
+            raise ValueError('Input value must be a valid float number')
+
+        self._value = value
+
+
+class NonZeroPositiveFloat:
+    """Descriptor for representing non-zero positive values."""
+
+    def __get__(self, instance, owner):
+        return self._value
+
+    def __set__(self, instance, value):
+        """Validate input value as float."""
+        self.__value = value
+        if self.__value <= 0:
+            raise ValueError('Input value must be greater than 0')
+
+        self._value = self.__value
+
+    __value = Float()
+
+
+class Viscosity:
+    """Descriptor for representing viscosity values."""
+
+    def __get__(self, instance, owner):
+        return self._viscosity
+
+    def __set__(self, instance, value):
+        self.__viscosity = value
+        if self.__viscosity < 2:
+            raise ConceptError('Viscosity must be greater or equal to 2')
+
+        self._viscosity = self.__viscosity
+
+    __viscosity = Float()
+
+
+class ViscosityIndex:
+    """Descriptor for representing viscosity index values."""
+
+    def __get__(self, instance, owner):
+        return self._index
+
+    def __set__(self, instance, value):
+        if value < 0.0 or value > 400.0:
+            raise ConceptError('Viscosity Index must be between 0 and 400')
+
+        self._index = value
+
+
+class Temperature:
+    """Descriptor for representing non-zero positive values."""
+
+    def __get__(self, instance, owner):
+        return self._temperature
+
+    def __set__(self, instance, value):
+        self.__temperature = value
+        if self.__temperature >= -50:
+            self._temperature = self.__temperature
+        else:
+            raise ConceptError('Temperature must be greater -50°C')
+
+    __temperature = Float()
